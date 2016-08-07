@@ -1,7 +1,10 @@
 'use strict';
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
-import {window, commands, Disposable, ExtensionContext, StatusBarAlignment, StatusBarItem, TextDocument, TextEditor, TextEditorOptions, TextEditorDecorationType, TextLine, Selection, Range, Position} from 'vscode';
+import {window, commands, Disposable, ExtensionContext, StatusBarAlignment,
+        StatusBarItem, TextDocument, TextEditor, TextEditorOptions,
+        TextEditorDecorationType, TextLine, Selection, Range,
+        Position, workspace} from 'vscode';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -22,22 +25,33 @@ export function deactivate() {
 export class IndentSpy {
     private _statusBarItem: StatusBarItem;
     private _indicatorStyle: TextEditorDecorationType;
-    private _indicatorActiveStyle: TextEditorDecorationType;
 
     constructor() {
-        this._indicatorActiveStyle = window.createTextEditorDecorationType({
+        this.updateConfig();
+    }
+
+    public updateConfig() {
+        this._clearDecorators();
+        let config = workspace.getConfiguration('indenticator');
+        this._indicatorStyle = window.createTextEditorDecorationType({
             dark: {
-                borderColor: '#888',
-                borderStyle: 'solid',
-                borderWidth: '1px',
+                borderColor: config.get('color.dark', '#888'),
+                borderStyle: config.get('style', 'solid'),
+                borderWidth: config.get('width', 1) + "px",
             },
             light: {
-                borderColor: '#999',
-                borderStyle: 'solid',
-                borderWidth: '1px',
+                borderColor: config.get('color.light', '#666'),
+                borderStyle: config.get('style', 'solid'),
+                borderWidth: config.get('width', 1) + "px"
             }
         });
-        this._statusBarItem = window.createStatusBarItem(StatusBarAlignment.Left);
+        if(config.get("showCurrentDepthInStatusBar", true)){
+            this._statusBarItem = window.createStatusBarItem(
+                StatusBarAlignment.Left);
+        } else if(this._statusBarItem) {
+            this._statusBarItem.dispose();
+        }
+        this.updateCurrentIndent();
     }
 
     public updateCurrentIndent() {
@@ -62,14 +76,31 @@ export class IndentSpy {
 
 
         let tabSize = this._getTabSize(editor.options);
-        let selectedIndent = this._getSelectedIndentDepth(document, selection, tabSize);
+        let selectedIndent = this._getSelectedIndentDepth(document,
+                                                          selection,
+                                                          tabSize);
 
-        let activeIndentRanges = this._getActiveIndentRanges(document, selection, selectedIndent, tabSize)
+        let activeIndentRanges = this._getActiveIndentRanges(document,
+                                                             selection,
+                                                             selectedIndent,
+                                                             tabSize)
 
-        editor.setDecorations(this._indicatorActiveStyle, activeIndentRanges);
+        editor.setDecorations(this._indicatorStyle, activeIndentRanges);
 
-        this._statusBarItem.text = `Indent Depth ${selectedIndent}`
-        this._statusBarItem.show();
+        if(this._statusBarItem){
+            this._statusBarItem.text = `Indent Depth ${selectedIndent}`
+            this._statusBarItem.show();
+        }
+    }
+
+    _clearDecorators() {
+        if(!this._indicatorStyle) {
+            return;
+        }
+        for(let i = 0; i < window.visibleTextEditors.length; i++) {
+            window.visibleTextEditors[i].setDecorations(this._indicatorStyle,
+                                                        []);
+        }
     }
 
     _getIndentDepth(index: number, tabSize: number) {
@@ -157,7 +188,9 @@ export class IndentSpy {
     }
 
     dispose() {
-        this._statusBarItem.dispose();
+        if(this._statusBarItem){
+            this._statusBarItem.dispose();
+        }
     }
 }
 
@@ -172,8 +205,14 @@ class IndentSpyController {
 
         // subscribe to selection change and editor activation events
         let subscriptions: Disposable[] = [];
-        window.onDidChangeTextEditorSelection(this._onEvent, this, subscriptions);
-        window.onDidChangeActiveTextEditor(this._onEvent, this, subscriptions);
+        window.onDidChangeTextEditorSelection(
+            this._onUpdateEvent, this, subscriptions);
+        window.onDidChangeActiveTextEditor(
+            this._onUpdateEvent, this, subscriptions);
+
+        // subscribe to configuration change events
+        workspace.onDidChangeConfiguration(
+            this._onChangedConfigEvent, this, subscriptions);
 
         this._disposable = Disposable.from(...subscriptions);
     }
@@ -182,7 +221,11 @@ class IndentSpyController {
         this._disposable.dispose();
     }
 
-    private _onEvent(e) {
+    private _onUpdateEvent(e) {
         this._indentSpy.updateCurrentIndent();
+    }
+
+    private _onChangedConfigEvent(e) {
+        this._indentSpy.updateConfig();
     }
 }
