@@ -22,5 +22,39 @@
     "devDependencies": {
         "typescript": "^1.8.5",
         "vscode": "^0.11.0"
+    },
+    "contributes": {
+        "configuration": {
+            "type": "object",
+            "title": "Indenticator Configuration",
+            "properties": {
+                "indenticator.color.dark": {
+                    "type": "string",
+                    "default": "#888",
+                    "description": "Color of the indent marker for dark themes"
+                },
+                "indenticator.color.light": {
+                    "type": "string",
+                    "default": "#999",
+                    "description": "Color of the indent marker for light themes"
+                },
+                "indenticator.width": {
+                    "type": "number",
+                    "default": 1,
+                    "description": "Width of the indent marker in pixels"
+                },
+                "indenticator.style": {
+                    "type": "string",
+                    "default": "solid",
+                    "description": "Line style of the indent marker"
+                },
+                "indenticator.showCurrentDepthInStatusBar": {
+                    "type": "boolean",
+                    "default": true,
+                    "description":
+                        "Displays the current indent depth on the statusbar"
+                }
+            }
+        }
     }
 }
