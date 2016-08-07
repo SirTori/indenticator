@@ -103,6 +103,10 @@ export class IndentSpy {
         }
     }
 
+    _getTabSize(options: TextEditorOptions) {
+        return options.insertSpaces?Number(options.tabSize):1;
+    }
+
     _getIndentDepth(index: number, tabSize: number) {
         return Math.ceil(index / tabSize);
     }
@@ -112,9 +116,13 @@ export class IndentSpy {
                                     tabSize);
     }
 
+    _createIndicatorRange(line: number, character: number) {
+        return new Range(new Position(line, character),
+                         new Position(line, character));
+    }
+
     _getSelectedIndentDepth(document: TextDocument, selection: Selection,
                             tabSize: number) {
-        let selectedIndent = Number.MAX_VALUE;
         if(selection.isSingleLine) {
             let line = document.lineAt(selection.start.line);
             return this._getIndentDepth(
@@ -122,6 +130,7 @@ export class IndentSpy {
                          line.firstNonWhitespaceCharacterIndex),
                 tabSize);
         }
+        let selectedIndent = Number.MAX_VALUE;
         for(let i = selection.start.line; i <= selection.end.line; i++) {
             let line = document.lineAt(i);
             if(line.isEmptyOrWhitespace) {
@@ -133,22 +142,8 @@ export class IndentSpy {
         return selectedIndent;
     }
 
-    _getTabSize(options: TextEditorOptions) {
-        return options.insertSpaces?Number(options.tabSize):1;
-    }
-
-    _getDefaultIndentRanges(document: TextDocument, tabSize: number) {
-        let ranges = [];
-        for(let i = 0; i < document.lineCount;i++) {
-            let firstNonWhitespace = document.lineAt(i).firstNonWhitespaceCharacterIndex;
-            for(let j = tabSize; j < firstNonWhitespace; j += tabSize){
-                ranges.push(this._createIndicatorRange(i, j));
-            }
-        }
-        return ranges;
-    }
-
-    _getActiveIndentRanges(document: TextDocument, selection: Selection, selectedIndent: number, tabSize: number) {
+    _getActiveIndentRanges(document: TextDocument, selection: Selection,
+                           selectedIndent: number, tabSize: number) {
         if(selectedIndent == 0) {
             return [];
         }
@@ -180,11 +175,6 @@ export class IndentSpy {
             }
         }
         return activeRanges;
-    }
-
-    _createIndicatorRange(line: number, character: number) {
-        return new Range(new Position(line, character),
-                         new Position(line, character));
     }
 
     dispose() {
