@@ -11,6 +11,8 @@ import * as assert from 'assert';
 import * as vscode from 'vscode';
 import * as myExtension from '../src/extension';
 
+let fs = require('fs');
+
 
 let setEditorContent = (editor: vscode.TextEditor, text: string) => {
     return editor.edit((e) => {
@@ -22,6 +24,26 @@ let setEditorContent = (editor: vscode.TextEditor, text: string) => {
 
 
 suite("Extension Tests", () => {
+    let tmpFilePath = vscode.workspace.rootPath + "/tmp.txt";
+    let document, TextEditor;
+
+    suiteSetup(() => {
+        fs.writeFileSync(tmpFilePath, "foo");
+        return vscode.workspace.openTextDocument(tmpFilePath).then(
+            (doc) => document = doc
+        );
+    });
+
+    suiteSetup(() => {
+        return vscode.window.showTextDocument(document);
+    });
+
+    suiteTeardown(() => {
+        let fileStatus = fs.statSync(tmpFilePath);
+        if(fileStatus.isFile()) {
+            fs.unlinkSync(tmpFilePath);
+        }
+    });
 
     // Defines a Mocha unit test
     suite("IndentSpy", () => {
@@ -36,7 +58,7 @@ suite("Extension Tests", () => {
             let initialValues;
 
             setup(() => {
-                options = vscode.window.visibleTextEditors[0].options;
+                options = vscode.window.activeTextEditor.options;
                 initialValues = {
                     insertSpaces: options.insertSpaces,
                     tabSize: options.tabSize
@@ -91,7 +113,7 @@ suite("Extension Tests", () => {
             let editor;
 
             suiteSetup(() => {
-                editor = vscode.window.visibleTextEditors[0];
+                editor = vscode.window.activeTextEditor;
                 return setEditorContent(editor, "            test");
             });
 
@@ -132,13 +154,13 @@ suite("Extension Tests", () => {
 
             suiteSetup(() => {
                 // set tabSize to 2 with whitespaces
-                vscode.window.visibleTextEditors[0].options.insertSpaces = true;
-                vscode.window.visibleTextEditors[0].options.tabSize = 2;
+                vscode.window.activeTextEditor.options.insertSpaces = true;
+                vscode.window.activeTextEditor.options.tabSize = 2;
                 tabSize = IndentSpy._getTabSize(
-                    vscode.window.visibleTextEditors[0].options);
+                    vscode.window.activeTextEditor.options);
 
                 // build stub for TextDocument:
-                let editor = vscode.window.visibleTextEditors[0];
+                let editor = vscode.window.activeTextEditor;
                 document = editor.document;
                 return setEditorContent(editor,
                     "() => {\n" +
@@ -202,12 +224,12 @@ suite("Extension Tests", () => {
 
             suiteSetup(() => {
                 // set tabSize to 2 with whitespaces
-                vscode.window.visibleTextEditors[0].options.insertSpaces = true;
-                vscode.window.visibleTextEditors[0].options.tabSize = 2;
+                vscode.window.activeTextEditor.options.insertSpaces = true;
+                vscode.window.activeTextEditor.options.tabSize = 2;
                 tabSize = IndentSpy._getTabSize(
-                    vscode.window.visibleTextEditors[0].options);
+                    vscode.window.activeTextEditor.options);
 
-                let editor = vscode.window.visibleTextEditors[0];
+                let editor = vscode.window.activeTextEditor;
                 document = editor.document;
                 return setEditorContent(editor,
                     "() => {\n" +
