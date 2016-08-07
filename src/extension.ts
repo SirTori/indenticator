@@ -4,7 +4,7 @@
 import {window, commands, Disposable, ExtensionContext, StatusBarAlignment,
         StatusBarItem, TextDocument, TextEditor, TextEditorOptions,
         TextEditorDecorationType, TextLine, Selection, Range,
-        Position, workspace} from 'vscode';
+        Position, workspace, env} from 'vscode';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -23,16 +23,38 @@ export function deactivate() {
 
 
 export class IndentSpy {
+    private _locales: Object;
+    private _currentLocale: Object;
     private _statusBarItem: StatusBarItem;
     private _indicatorStyle: TextEditorDecorationType;
 
     constructor() {
+        this._locales = {
+            en: {statusText: `Indents {indent}`,
+                 statusTooltip: `current indent depth: {indent}`},
+            de: {statusText: `Einzüge {indent}`,
+                 statusTooltip: `aktuelle Einzugtiefe: {indent}`},
+            default: {statusText: `Indents {indent}`,
+                      statusTooltip: `current indent depth: {indent}`},
+        };
         this.updateConfig();
     }
 
     public updateConfig() {
         this._clearDecorators();
         let config = workspace.getConfiguration('indenticator');
+        let locale = env.language;
+        let multipartLocale = env.language.indexOf('-');
+        if(multipartLocale >= 0) {
+            locale = locale.substring(0, multipartLocale);
+        }
+
+        if(!this._locales[locale]) {
+            this._currentLocale = this._locales['default'];
+        } else {
+            this._currentLocale = this._locales[locale];
+        }
+
         this._indicatorStyle = window.createTextEditorDecorationType({
             dark: {
                 borderColor: config.get('color.dark', '#888'),
@@ -47,7 +69,7 @@ export class IndentSpy {
         });
         if(config.get("showCurrentDepthInStatusBar", true)){
             this._statusBarItem = window.createStatusBarItem(
-                StatusBarAlignment.Left);
+                StatusBarAlignment.Right, 100);
         } else if(this._statusBarItem) {
             this._statusBarItem.dispose();
         }
@@ -88,7 +110,10 @@ export class IndentSpy {
         editor.setDecorations(this._indicatorStyle, activeIndentRanges);
 
         if(this._statusBarItem){
-            this._statusBarItem.text = `Indent Depth ${selectedIndent}`
+            this._statusBarItem.text = this._currentLocale['statusText']
+                .replace('{indent}', selectedIndent);
+            this._statusBarItem.tooltip = this._currentLocale['statusTooltip']
+                .replace('{indent}', selectedIndent);
             this._statusBarItem.show();
         }
     }
