@@ -8,7 +8,7 @@ Can be used by itself, but it's recommended to use it alongside the builtin inde
 ![Indenticator demonstration](img/demo.gif)
 
 ## Settings
-``` JSON
+``` JS
 {
     /* Color of the indent marker for dark themes */
     "indenticator.color.dark": "#888",
