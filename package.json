@@ -31,7 +31,7 @@
         "url": "https://github.com/SirTori/indenticator/issues"
     },
     "engines": {
-        "vscode": "^0.10.x"
+        "vscode": "^0.10.10"
     },
     "categories": [
         "Other"
