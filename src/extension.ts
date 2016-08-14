@@ -30,11 +30,11 @@ export class IndentSpy {
 
     constructor() {
         this._locales = {
-            en: {statusText: `Indents {indent}`,
+            en: {statusText: `Indents: {indent}`,
                  statusTooltip: `current indent depth: {indent}`},
-            de: {statusText: `Einzüge {indent}`,
+            de: {statusText: `Einzüge: {indent}`,
                  statusTooltip: `aktuelle Einzugtiefe: {indent}`},
-            default: {statusText: `Indents {indent}`,
+            default: {statusText: `Indents: {indent}`,
                       statusTooltip: `current indent depth: {indent}`},
         };
         this.updateConfig();
