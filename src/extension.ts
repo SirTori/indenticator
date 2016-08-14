@@ -59,10 +59,10 @@ export class IndentSpy {
             dark: {
                 borderColor: config.get('color.dark', '#888'),
                 borderStyle: config.get('style', 'solid'),
-                borderWidth: config.get('width', 1) + "px",
+                borderWidth: config.get('width', 1) + "px"
             },
             light: {
-                borderColor: config.get('color.light', '#666'),
+                borderColor: config.get('color.light', '#999'),
                 borderStyle: config.get('style', 'solid'),
                 borderWidth: config.get('width', 1) + "px"
             }
