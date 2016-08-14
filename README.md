@@ -1,13 +1,22 @@
-# README
-## This is the README for your extension "indenticator"
-You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
+# Indenticator
 
-* Split the editor (`Cmd+\` on OSX or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+CMD+V` on OSX or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux) or `Cmd+Space` (OSX) to see a list of Markdown snippets
+Visually highlights the current indent depth.
 
-### For more information
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
+Can be used by itself, but it's recommended to use it alongside the builtin indent guides.
 
-**Enjoy!**
+## Settings
+
+``` JSON
+{
+    /* Color of the indent marker for dark themes */
+    "indenticator.color.dark": "#888",
+    /* Color of the indent marker for light themes */
+    "indenticator.color.light": "#999",
+    /* Width of the indent marker in pixels */
+    "indenticator.width": 1,
+    /* Line style of the indent marker (e.g. "solid", "dashed", "dotted", ...) */
+    "indenticator.style": "solid",
+    /* Wether to displays the current indent depth on the statusbar */
+    "indenticator.showCurrentDepthInStatusBar": true
+}
+```

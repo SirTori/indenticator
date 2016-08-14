@@ -53,7 +53,7 @@
                     "type": "boolean",
                     "default": true,
                     "description":
-                        "Displays the current indent depth on the statusbar"
+                        "Wether to displays the current indent depth on the statusbar"
                 }
             }
         }
