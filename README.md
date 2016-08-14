@@ -1,11 +1,13 @@
+![build status](https://travis-ci.org/SirTori/indenticator.svg?branch=master)
 # Indenticator
 
 Visually highlights the current indent depth.
 
 Can be used by itself, but it's recommended to use it alongside the builtin indent guides.
 
-## Settings
+![Indenticator demonstration](img/demo.gif)
 
+## Settings
 ``` JSON
 {
     /* Color of the indent marker for dark themes */
