@@ -1,11 +1,37 @@
 {
     "name": "indenticator",
     "displayName": "Indenticator",
-    "description": "Highlights the current indent depth of the cursor",
-    "version": "0.0.1",
-    "publisher": "sirtori",
+    "description": "Highlights your current indent depth",
+    "version": "0.1.0",
+    "publisher": "SirTori",
+    "homepage": "https://github.com/SirTori/indenticator/blob/master/README.md",
+    "license": "SEE LICENSE IN LICENSE.txt",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/SirTori/indenticator"
+    },
+    "icon": "img/icon.png",
+    "galleryBanner": {
+        "color": "#877d88",
+        "theme": "dark"
+    },
+    "badges": [
+        {
+            "url": "https://david-dm.org/sirtori/indenticator.svg",
+            "href": "https://david-dm.org/sirtori/indenticator",
+            "description": "Dependency Status"
+        },
+        {
+            "url": "https://travis-ci.org/SirTori/indenticator.svg?branch=master",
+            "href": "https://travis-ci.org/SirTori/indenticator",
+            "description": "Build Status"
+        }
+    ],
+    "bugs": {
+        "url": "https://github.com/SirTori/indenticator/issues"
+    },
     "engines": {
-        "vscode": "^0.10.10"
+        "vscode": "^0.10.x"
     },
     "categories": [
         "Other"
