@@ -2,7 +2,7 @@
     "name": "indenticator",
     "displayName": "Indenticator",
     "description": "Highlights your current indent depth",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "publisher": "SirTori",
     "homepage": "https://github.com/SirTori/indenticator/blob/master/README.md",
     "license": "SEE LICENSE IN LICENSE.txt",
@@ -84,8 +84,7 @@
                 "indenticator.showCurrentDepthInStatusBar": {
                     "type": "boolean",
                     "default": true,
-                    "description":
-                        "Wether to displays the current indent depth on the statusbar"
+                    "description": "Wether to displays the current indent depth on the statusbar"
                 }
             }
         }
