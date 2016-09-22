@@ -25,7 +25,7 @@ let setEditorContent = (editor: vscode.TextEditor, text: string) => {
 
 suite("Extension Tests", () => {
     let tmpFilePath = vscode.workspace.rootPath + "/tmp.txt";
-    let document, TextEditor;
+    let document : vscode.TextDocument;
 
     suiteSetup(() => {
         fs.writeFileSync(tmpFilePath, "foo");
@@ -47,7 +47,7 @@ suite("Extension Tests", () => {
 
     // Defines a Mocha unit test
     suite("IndentSpy", () => {
-        let IndentSpy;
+        let IndentSpy : myExtension.IndentSpy;
 
         setup(() => {
            IndentSpy = new myExtension.IndentSpy();
@@ -110,7 +110,7 @@ suite("Extension Tests", () => {
 
         suite("_getLinesIndentDepth", () => {
 
-            let editor;
+            let editor : vscode.TextEditor;
 
             suiteSetup(() => {
                 editor = vscode.window.activeTextEditor;
@@ -150,7 +150,7 @@ suite("Extension Tests", () => {
         });
 
         suite("_getSelectedIndentDepth", () => {
-            let document, tabSize;
+            let document : vscode.TextDocument, tabSize;
 
             suiteSetup(() => {
                 // set tabSize to 2 with whitespaces
@@ -211,7 +211,7 @@ suite("Extension Tests", () => {
         });
 
         suite("_getActiveIndentRanges", () => {
-            let document, tabSize;
+            let document : vscode.TextDocument, tabSize;
 
             let findRangePredicate = (expected) => {
                 return (value, idx, obj) => {

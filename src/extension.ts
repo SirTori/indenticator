@@ -23,10 +23,10 @@ export function deactivate() {
 
 
 export class IndentSpy {
-    private _locales: Object;
-    private _currentLocale: Object;
-    private _statusBarItem: StatusBarItem;
-    private _indicatorStyle: TextEditorDecorationType;
+    _locales: Object;
+    _currentLocale: Object;
+    _statusBarItem: StatusBarItem;
+    _indicatorStyle: TextEditorDecorationType;
 
     constructor() {
         this._locales = {
@@ -67,32 +67,40 @@ export class IndentSpy {
                 borderWidth: config.get('width', 1) + "px"
             }
         });
-        if(config.get("showCurrentDepthInStatusBar", true)){
-            this._statusBarItem = window.createStatusBarItem(
-                StatusBarAlignment.Right, 100);
+        if(config.get('showCurrentDepthInStatusBar', true)) {
+            if(!this._statusBarItem) {
+                this._statusBarItem = window.createStatusBarItem(
+                    StatusBarAlignment.Right, 100);
+            }
         } else if(this._statusBarItem) {
             this._statusBarItem.dispose();
+            this._statusBarItem = undefined;
         }
         this.updateCurrentIndent();
     }
 
     public updateCurrentIndent() {
+        let hideStatusbarIfPossible = () => {
+            if(this._statusBarItem) {
+                this._statusBarItem.hide();
+            }
+        }
 
         let editor = window.activeTextEditor;
         if (!editor) {
-            this._statusBarItem.hide();
+            hideStatusbarIfPossible();
             return;
         }
 
         let document = editor.document;
         if (!document) {
-            this._statusBarItem.hide();
+            hideStatusbarIfPossible();
             return;
         }
 
         let selection = editor.selection;
         if (!selection) {
-            this._statusBarItem.hide();
+            hideStatusbarIfPossible();
             return;
         }
 
