@@ -28,8 +28,10 @@ export class IndentSpy {
     _statusBarItem: StatusBarItem;
     _indicatorStyle: TextEditorDecorationType;
     _firstLine: number;
+    _lastLine: number;
     _hoverProvider: Disposable;
     _rangeAtThisLineMaker: Range;
+    _showHover: boolean;
 
     constructor() {
         this._locales = {
@@ -79,6 +81,11 @@ export class IndentSpy {
             this._statusBarItem.dispose();
             this._statusBarItem = undefined;
         }
+        if(config.get('showHover', false)) {
+            this._showHover = true
+        } else if (this._hoverProvider) {
+            this._hoverProvider.dispose();
+        }
         this.updateCurrentIndent();
     }
 
@@ -118,20 +125,23 @@ export class IndentSpy {
                                                              selectedIndent,
                                                              tabSize)
 
-        if (this._hoverProvider) this._hoverProvider.dispose();
-        this._hoverProvider = languages.registerHoverProvider(editor.document.languageId, {
-            provideHover: (doc, position) => {
-                if (position.character == this._rangeAtThisLineMaker.start.character
-                    && position.line == this._rangeAtThisLineMaker.start.line) {
-                    return {
-                        range: this._rangeAtThisLineMaker,
-                        contents: [
-                            { language: editor.document.languageId, value: document.lineAt(this._firstLine).text.trim() }
-                        ]
-                    };
+        if(this._showHover) {
+            if (this._hoverProvider) this._hoverProvider.dispose();
+            this._hoverProvider = languages.registerHoverProvider(editor.document.languageId, {
+                provideHover: (doc, position) => {
+                    let char = this._rangeAtThisLineMaker.start.character
+                    if (position.character > char -2 && position.character < char +2
+                        && position.line > this._firstLine && position.line < this._lastLine) {
+                        return {
+                            range: this._rangeAtThisLineMaker,
+                            contents: [
+                                { language: editor.document.languageId, value: document.lineAt(this._firstLine).text.trim() }
+                            ]
+                        };
+                    }
                 }
-            }
-        });
+            });
+        }
 
         editor.setDecorations(this._indicatorStyle, activeIndentRanges);
 
@@ -201,6 +211,7 @@ export class IndentSpy {
         let selectedIndentPos = (selectedIndent - 1) * tabSize;
         let activeRanges = [];
         this._firstLine = selection.start.line;
+        this._lastLine = selection.start.line;
         // add ranges for selected block
         for(let i = selection.start.line; i <= selection.end.line; i++) {
             let line = document.lineAt(i);
@@ -225,6 +236,7 @@ export class IndentSpy {
             if(lineIndent >= selectedIndent || (line.isEmptyOrWhitespace && selectedIndent == 1)) {
                 activeRanges.push(this._createIndicatorRange(i, selectedIndentPos));
             } else if(!line.isEmptyOrWhitespace) {
+                this._lastLine = i
                 break;
             }
         }
