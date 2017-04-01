@@ -4,7 +4,7 @@
 import {window, commands, Disposable, ExtensionContext, StatusBarAlignment,
         StatusBarItem, TextDocument, TextEditor, TextEditorOptions,
         TextEditorDecorationType, TextLine, Selection, Range,
-        Position, workspace, env} from 'vscode';
+        Position, workspace, env, languages} from 'vscode';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -27,6 +27,11 @@ export class IndentSpy {
     _currentLocale: Object;
     _statusBarItem: StatusBarItem;
     _indicatorStyle: TextEditorDecorationType;
+    _firstLine: number;
+    _lastLine: number;
+    _hoverProvider: Disposable;
+    _rangeAtThisLineMaker: Range;
+    _showHover: boolean;
 
     constructor() {
         this._locales = {
@@ -76,6 +81,11 @@ export class IndentSpy {
             this._statusBarItem.dispose();
             this._statusBarItem = undefined;
         }
+        if(config.get('showHover', false)) {
+            this._showHover = true
+        } else if (this._hoverProvider) {
+            this._hoverProvider.dispose();
+        }
         this.updateCurrentIndent();
     }
 
@@ -114,6 +124,24 @@ export class IndentSpy {
                                                              selection,
                                                              selectedIndent,
                                                              tabSize)
+
+        if(this._showHover) {
+            if (this._hoverProvider) this._hoverProvider.dispose();
+            this._hoverProvider = languages.registerHoverProvider(editor.document.languageId, {
+                provideHover: (doc, position) => {
+                    let char = this._rangeAtThisLineMaker.start.character
+                    if (position.character > char -2 && position.character < char +2
+                        && position.line > this._firstLine && position.line < this._lastLine) {
+                        return {
+                            range: this._rangeAtThisLineMaker,
+                            contents: [
+                                { language: editor.document.languageId, value: document.lineAt(this._firstLine).text.trim() }
+                            ]
+                        };
+                    }
+                }
+            });
+        }
 
         editor.setDecorations(this._indicatorStyle, activeIndentRanges);
 
@@ -182,10 +210,13 @@ export class IndentSpy {
         }
         let selectedIndentPos = (selectedIndent - 1) * tabSize;
         let activeRanges = [];
+        this._firstLine = selection.start.line;
+        this._lastLine = selection.start.line;
         // add ranges for selected block
         for(let i = selection.start.line; i <= selection.end.line; i++) {
             let line = document.lineAt(i);
-            activeRanges.push(this._createIndicatorRange(i, selectedIndentPos));
+            this._rangeAtThisLineMaker = this._createIndicatorRange(i, selectedIndentPos);
+            activeRanges.push(this._rangeAtThisLineMaker);
         }
         // add ranges for preceeding lines on same indent
         for(let i = selection.start.line-1; i >= 0; i--) {
@@ -194,6 +225,7 @@ export class IndentSpy {
             if(lineIndent >= selectedIndent || (line.isEmptyOrWhitespace && selectedIndent == 1)) {
                 activeRanges.push(this._createIndicatorRange(i, selectedIndentPos));
             } else if(!line.isEmptyOrWhitespace) {
+                this._firstLine = i;
                 break;
             }
         }
@@ -204,6 +236,7 @@ export class IndentSpy {
             if(lineIndent >= selectedIndent || (line.isEmptyOrWhitespace && selectedIndent == 1)) {
                 activeRanges.push(this._createIndicatorRange(i, selectedIndentPos));
             } else if(!line.isEmptyOrWhitespace) {
+                this._lastLine = i
                 break;
             }
         }
@@ -213,6 +246,9 @@ export class IndentSpy {
     dispose() {
         if(this._statusBarItem){
             this._statusBarItem.dispose();
+        }
+        if (this._hoverProvider) {
+            this._hoverProvider.dispose();
         }
     }
 }
