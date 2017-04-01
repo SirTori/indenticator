@@ -214,7 +214,6 @@ export class IndentSpy {
         this._lastLine = selection.start.line;
         // add ranges for selected block
         for(let i = selection.start.line; i <= selection.end.line; i++) {
-            let line = document.lineAt(i);
             this._rangeAtThisLineMaker = this._createIndicatorRange(i, selectedIndentPos);
             activeRanges.push(this._rangeAtThisLineMaker);
         }
@@ -236,7 +235,7 @@ export class IndentSpy {
             if(lineIndent >= selectedIndent || (line.isEmptyOrWhitespace && selectedIndent == 1)) {
                 activeRanges.push(this._createIndicatorRange(i, selectedIndentPos));
             } else if(!line.isEmptyOrWhitespace) {
-                this._lastLine = i
+                this._lastLine = i;
                 break;
             }
         }
