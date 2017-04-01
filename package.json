@@ -1,97 +1,101 @@
 {
-    "name": "indenticator",
-    "displayName": "Indenticator",
-    "description": "Highlights your current indent depth",
-    "version": "0.2.1",
-    "publisher": "SirTori",
-    "homepage": "https://github.com/SirTori/indenticator/blob/master/README.md",
-    "license": "SEE LICENSE IN LICENSE.txt",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/SirTori/indenticator"
+  "name": "indenticator",
+  "displayName": "Indenticator",
+  "description": "Highlights your current indent depth",
+  "version": "0.2.1",
+  "publisher": "SirTori",
+  "homepage": "https://github.com/SirTori/indenticator/blob/master/README.md",
+  "license": "SEE LICENSE IN LICENSE.txt",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SirTori/indenticator"
+  },
+  "icon": "img/icon.png",
+  "galleryBanner": {
+    "color": "#877d88",
+    "theme": "dark"
+  },
+  "badges": [
+    {
+      "url": "https://david-dm.org/sirtori/indenticator.svg",
+      "href": "https://david-dm.org/sirtori/indenticator",
+      "description": "Dependency Status"
     },
-    "icon": "img/icon.png",
-    "galleryBanner": {
-        "color": "#877d88",
-        "theme": "dark"
-    },
-    "badges": [
-        {
-            "url": "https://david-dm.org/sirtori/indenticator.svg",
-            "href": "https://david-dm.org/sirtori/indenticator",
-            "description": "Dependency Status"
-        },
-        {
-            "url": "https://travis-ci.org/SirTori/indenticator.svg?branch=master",
-            "href": "https://travis-ci.org/SirTori/indenticator",
-            "description": "Build Status"
-        }
-    ],
-    "bugs": {
-        "url": "https://github.com/SirTori/indenticator/issues"
-    },
-    "engines": {
-        "vscode": "^0.10.10"
-    },
-    "categories": [
-        "Other"
-    ],
-    "keywords": [
-        "guides",
-        "indentation",
-        "indentation guides",
-        "indent"
-    ],
-    "activationEvents": [
-        "*"
-    ],
-    "main": "./out/src/extension",
-    "scripts": {
-        "vscode:prepublish": "node ./node_modules/vscode/bin/compile",
-        "compile": "node ./node_modules/vscode/bin/compile -watch -p ./",
-        "postinstall": "node ./node_modules/vscode/bin/install",
-        "test": "node ./node_modules/vscode/bin/test"
-    },
-    "devDependencies": {
-        "typescript": "^1.8.5",
-        "vscode": "^0.11.0"
-    },
-    "contributes": {
-        "configuration": {
-            "type": "object",
-            "title": "Indenticator Configuration",
-            "properties": {
-                "indenticator.color.dark": {
-                    "type": "string",
-                    "default": "#888",
-                    "description": "Color of the indent marker for dark themes"
-                },
-                "indenticator.color.light": {
-                    "type": "string",
-                    "default": "#999",
-                    "description": "Color of the indent marker for light themes"
-                },
-                "indenticator.width": {
-                    "type": "number",
-                    "default": 1,
-                    "description": "Width of the indent marker in pixels"
-                },
-                "indenticator.style": {
-                    "type": "string",
-                    "default": "solid",
-                    "description": "Line style of the indent marker"
-                },
-                "indenticator.showCurrentDepthInStatusBar": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Wether to display the current indent depth on the statusbar"
-                },
-                "indenticator.showHover": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Wether to display the hover near the indent line"
-                }
-            }
-        }
+    {
+      "url": "https://travis-ci.org/SirTori/indenticator.svg?branch=master",
+      "href": "https://travis-ci.org/SirTori/indenticator",
+      "description": "Build Status"
     }
+  ],
+  "bugs": {
+    "url": "https://github.com/SirTori/indenticator/issues"
+  },
+  "engines": {
+    "vscode": "^0.10.10"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "guides",
+    "indentation",
+    "indentation guides",
+    "indent"
+  ],
+  "activationEvents": [
+    "*"
+  ],
+  "main": "./out/src/extension",
+  "scripts": {
+    "vscode:prepublish": "tsc -p ./",
+    "compile": "tsc -watch -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install",
+    "test": "node ./node_modules/vscode/bin/test"
+  },
+  "devDependencies": {
+    "@types/mocha": "^2.2.32",
+    "@types/node": "^7.0.12",
+    "assert": "^1.4.1",
+    "mocha": "^2.3.3",
+    "typescript": "^2.0.3",
+    "vscode": "^1.0.0"
+  },
+  "contributes": {
+    "configuration": {
+      "type": "object",
+      "title": "Indenticator Configuration",
+      "properties": {
+        "indenticator.color.dark": {
+          "type": "string",
+          "default": "#888",
+          "description": "Color of the indent marker for dark themes"
+        },
+        "indenticator.color.light": {
+          "type": "string",
+          "default": "#999",
+          "description": "Color of the indent marker for light themes"
+        },
+        "indenticator.width": {
+          "type": "number",
+          "default": 1,
+          "description": "Width of the indent marker in pixels"
+        },
+        "indenticator.style": {
+          "type": "string",
+          "default": "solid",
+          "description": "Line style of the indent marker"
+        },
+        "indenticator.showCurrentDepthInStatusBar": {
+          "type": "boolean",
+          "default": true,
+          "description": "Wether to display the current indent depth on the statusbar"
+        },
+        "indenticator.showHover": {
+          "type": "boolean",
+          "default": false,
+          "description": "Wether to display the hover near the indent line"
+        }
+      }
+    }
+  }
 }
