@@ -84,7 +84,12 @@
                 "indenticator.showCurrentDepthInStatusBar": {
                     "type": "boolean",
                     "default": true,
-                    "description": "Wether to displays the current indent depth on the statusbar"
+                    "description": "Wether to display the current indent depth on the statusbar"
+                },
+                "indenticator.showHover": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Wether to display the hover near the indent line"
                 }
             }
         }
