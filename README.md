@@ -1,4 +1,10 @@
-![build status](https://travis-ci.org/SirTori/indenticator.svg?branch=master)
+[![Build Status](https://travis-ci.org/SirTori/indenticator.svg?branch=master)](https://travis-ci.org/SirTori/indenticator)
+
+# Changes in 0.3.0
+
+* New Feature: Hover on active indent line peeks first line (thanks to [rsbondi](https://github.com/rsbondi) on github)
+  * New Setting **indenticator.showHover** to activate the new Feature (default is `false`)
+
 # Indenticator
 
 Visually highlights the current indent depth.
@@ -19,6 +25,8 @@ Can be used by itself, but it's recommended to use it alongside the builtin inde
     /* Line style of the indent marker (e.g. "solid", "dashed", "dotted", ...) */
     "indenticator.style": "solid",
     /* Wether to displays the current indent depth on the statusbar */
-    "indenticator.showCurrentDepthInStatusBar": true
+    "indenticator.showCurrentDepthInStatusBar": true,
+    "Wether to display the hover near the indent line"
+    "indenticator.showHover": false
 }
 ```
