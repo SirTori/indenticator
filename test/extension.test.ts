@@ -289,7 +289,285 @@ suite("Extension Tests", () => {
                     }
                 }
             );
+        });
 
+        suite("_peekBack", () => {
+            let editor : vscode.TextEditor, tabSize;
+
+            suiteSetup(() => {
+                // set tabSize to 2 with whitespaces
+                vscode.window.activeTextEditor.options.insertSpaces = true;
+                vscode.window.activeTextEditor.options.tabSize = 2;
+                tabSize = IndentSpy._getTabSize(
+                    vscode.window.activeTextEditor.options);
+
+                editor = vscode.window.activeTextEditor;
+                return setEditorContent(editor,
+                    "() => {\n" +
+                    "  //foo?\n" +
+                    "  //\n" +
+                    "  foo();\n" +
+                    "  if(foo()) {\n" +
+                    "    bar();\n" +
+                    "    return;\n" +
+                    "  } else {\n" +
+                    "    foo();\n" +
+                    "  }\n" +
+                    "}\n"
+                );
+            });
+
+            setup(() => {
+                IndentSpy._hoverConf = {
+                    peekBack: 3,
+                    peekForward: 0,
+                    trimLinesShorterThan: 2,
+                    peekBlockPlaceholder: '...'
+                };
+                IndentSpy._firstLine = 4;
+                IndentSpy._lastLine = 7;
+                IndentSpy._rangeAtThisLineMaker = IndentSpy
+                    ._createIndicatorRange(4, 4);
+            })
+
+            test("returns empty list if peekBack is lower than 1",
+                 () => {
+                    IndentSpy._hoverConf.peekBack = -1;
+                    let lines = IndentSpy._peekBack(editor.document, 2, 1);
+                    assert.equal(lines.length, 0);
+                 });
+            test("reutrns a list containing the configured number of" +
+                 " lines from before the currently active indent block and" +
+                 " trims their leading whitespace characters",
+                 () => {
+                    let lines = IndentSpy._peekBack(editor.document, 2, 1);
+                    assert.equal(lines.length, 3);
+                    assert.equal(lines[0], "//");
+                    assert.equal(lines[1], "foo();");
+                    assert.equal(lines[2], "if(foo()) {");
+                 });
+            test("peeks at maximum the confgiured number of lines",
+                 () => {
+                    IndentSpy._hoverConf.peekBack = 1;
+                    let lines = IndentSpy._peekBack(editor.document, 2, 1);
+                    assert.equal(lines.length, 1);
+                    assert.equal(lines[0], "if(foo()) {");
+                 });
+            test("stops at changing indent depth",
+                 () => {
+                    IndentSpy._hoverConf.peekBack = 5;
+                    let lines = IndentSpy._peekBack(editor.document, 2, 1);
+                    assert.equal(lines.length, 4);
+                    assert.equal(lines[0], "//foo?");
+                    assert.equal(lines[1], "//");
+                    assert.equal(lines[2], "foo();");
+                    assert.equal(lines[3], "if(foo()) {");
+                 });
+            test("trims lines shorter than configured value",
+                 () => {
+                    IndentSpy._hoverConf.trimLinesShorterThan = 3;
+                    let lines = IndentSpy._peekBack(editor.document, 2, 1);
+                    assert.equal(lines.length, 2);
+                    assert.equal(lines[0], "foo();");
+                    assert.equal(lines[1], "if(foo()) {");
+                 });
+            test("doesn't trim lines shorter than configured value if" +
+                 " another before line is already peeked",
+                 () => {
+                    IndentSpy._hoverConf.peekBack = 4;
+                    IndentSpy._hoverConf.trimLinesShorterThan = 4;
+                    let lines = IndentSpy._peekBack(editor.document, 2, 1);
+                    assert.equal(lines.length, 4);
+                    assert.equal(lines[0], "//foo?");
+                    assert.equal(lines[1], "//");
+                    assert.equal(lines[2], "foo();");
+                    assert.equal(lines[3], "if(foo()) {");
+                 });
+        });
+
+        suite("_peekForward", () => {
+            let editor : vscode.TextEditor, tabSize;
+
+            suiteSetup(() => {
+                // set tabSize to 2 with whitespaces
+                vscode.window.activeTextEditor.options.insertSpaces = true;
+                vscode.window.activeTextEditor.options.tabSize = 2;
+                tabSize = IndentSpy._getTabSize(
+                    vscode.window.activeTextEditor.options);
+
+                editor = vscode.window.activeTextEditor;
+                return setEditorContent(editor,
+                    "() => {\n" +
+                    "  if(foo()) {\n" +
+                    "    bar();\n" +
+                    "    return;\n" +
+                    "  }\n" +
+                    "  //foo?\n" +
+                    "  //\n" +
+                    "  foo();\n" +
+                    "}\n"
+                );
+            });
+
+            setup(() => {
+                IndentSpy._hoverConf = {
+                    peekBack: 0,
+                    peekForward: 3,
+                    trimLinesShorterThan: 2,
+                    peekBlockPlaceholder: '...'
+                };
+                IndentSpy._firstLine = 1;
+                IndentSpy._lastLine = 4;
+                IndentSpy._rangeAtThisLineMaker = IndentSpy
+                    ._createIndicatorRange(4, 4);
+            })
+
+            test("returns empty list if peekForward is lower than 1",
+                 () => {
+                    IndentSpy._hoverConf.peekForward = -1;
+                    let lines = IndentSpy._peekForward(editor.document, 2, 1);
+                    assert.equal(lines.length, 0);
+                 });
+            test("reutrns a list containing the configured number of" +
+                 " lines from after the currently active indent block in " +
+                 " reverse order and trims their leading whitespace characters",
+                 () => {
+                    let lines = IndentSpy._peekForward(editor.document, 2, 1);
+                    assert.equal(lines.length, 3);
+                    assert.equal(lines[0], "}");
+                    assert.equal(lines[1], "//foo?");
+                    assert.equal(lines[2], "//");
+                 });
+            test("peeks at maximum the confgiured number of lines",
+                 () => {
+                    IndentSpy._hoverConf.peekForward = 2;
+                    let lines = IndentSpy._peekForward(editor.document, 2, 1);
+                    assert.equal(lines.length, 2);
+                    assert.equal(lines[0], "}");
+                    assert.equal(lines[1], "//foo?");
+                 });
+            test("stops at changing indent depth",
+                 () => {
+                    IndentSpy._hoverConf.peekForward = 5;
+                    let lines = IndentSpy._peekForward(editor.document, 2, 1);
+                    assert.equal(lines.length, 4);
+                    assert.equal(lines[0], "}");
+                    assert.equal(lines[1], "//foo?");
+                    assert.equal(lines[2], "//");
+                    assert.equal(lines[3], "foo();");
+                 });
+            test("trims lines shorter than configured value",
+                 () => {
+                    IndentSpy._hoverConf.trimLinesShorterThan = 3;
+                    let lines = IndentSpy._peekForward(editor.document, 2, 1);
+                    assert.equal(lines.length, 2);
+                    assert.equal(lines[0], "}");
+                    assert.equal(lines[1], "//foo?");
+                 });
+            test("doesn't trim lines shorter than configured value if" +
+                 " another before line is already peeked",
+                 () => {
+                    IndentSpy._hoverConf.peekForward = 4;
+                    IndentSpy._hoverConf.trimLinesShorterThan = 4;
+                    let lines = IndentSpy._peekForward(editor.document, 2, 1);
+                    assert.equal(lines.length, 4);
+                    assert.equal(lines[0], "}");
+                    assert.equal(lines[1], "//foo?");
+                    assert.equal(lines[2], "//");
+                    assert.equal(lines[3], "foo();");
+                 });
+        });
+
+        suite("_buildHoverPlaceholder", () => {
+            let editor : vscode.TextEditor, tabSize;
+
+            suiteSetup(() => {
+                editor = vscode.window.activeTextEditor;
+            });
+
+            setup(() => {
+                IndentSpy._hoverConf = {
+                    peekBack: 0,
+                    peekForward: 3,
+                    trimLinesShorterThan: 2,
+                    peekBlockPlaceholder: '...'
+                };
+            })
+
+            test("returns string with configured peekBlockPlaceholder" +
+                 " with one indent placed before",() => {
+                editor.options.insertSpaces = true;
+                editor.options.tabSize = 2;
+                tabSize = IndentSpy._getTabSize(
+                    vscode.window.activeTextEditor.options);
+                IndentSpy._hoverConf.peekBlockPlaceholder = 'foo!';
+                let result = IndentSpy._buildHoverPlaceholder(editor, tabSize);
+                assert.equal(result, "  foo!");
+            });
+
+            test("uses configured indent",() => {
+                editor.options.insertSpaces = false;
+                editor.options.tabSize = 3;
+                tabSize = IndentSpy._getTabSize(
+                    vscode.window.activeTextEditor.options);
+                IndentSpy._hoverConf.peekBlockPlaceholder = 'bar!';
+                let result = IndentSpy._buildHoverPlaceholder(editor, tabSize);
+                assert.equal(result, "\tbar!");
+            });
+        });
+
+        suite("_buildHoverString", () => {
+            let editor : vscode.TextEditor, tabSize;
+
+            suiteSetup(() => {
+                // set tabSize to 2 with whitespaces
+                vscode.window.activeTextEditor.options.insertSpaces = true;
+                vscode.window.activeTextEditor.options.tabSize = 2;
+                tabSize = IndentSpy._getTabSize(
+                    vscode.window.activeTextEditor.options);
+
+                editor = vscode.window.activeTextEditor;
+                return setEditorContent(editor,
+                    "() => {\n" +
+                    "  //foo?\n" +
+                    "  //\n" +
+                    "  foo();\n" +
+                    "  if(foo()) {\n" +
+                    "    bar();\n" +
+                    "    return;\n" +
+                    "  }\n" +
+                    "  //foo?\n" +
+                    "  //\n" +
+                    "  foo();\n" +
+                    "}\n"
+                );
+            });
+
+            setup(() => {
+                IndentSpy._hoverConf = {
+                    peekBack: 3,
+                    peekForward: 3,
+                    trimLinesShorterThan: 3,
+                    peekBlockPlaceholder: '// my indent block'
+                };
+                IndentSpy._firstLine = 4;
+                IndentSpy._lastLine = 7;
+                IndentSpy._rangeAtThisLineMaker = IndentSpy
+                    ._createIndicatorRange(4, 4);
+            })
+
+            test("returns a block using the configured peek options",
+                 () => {
+                    let block = IndentSpy._buildHoverString(editor, tabSize);
+                    assert.equal(
+                        block,
+                        "foo();\n" +
+                        "if(foo()) {\n" +
+                        "  // my indent block\n" +
+                        "}\n" +
+                        "//foo?"
+                    );
+                 });
         });
     });
 });
