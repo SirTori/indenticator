@@ -116,13 +116,13 @@
           "description": "Block placeholder to be written between peeked lines."
         },
         "indenticator.languageSpecific": {
-          "type": ["object", "null"],
-          "default": null,
+          "type": ["object"],
+          "default": {},
           "description": "A construct with language identifiers as properties containing a subset of indenticator options to be applied to that language",
           "additionalProperties": false,
           "patternProperties": {
             "^\\[.+\\]$": {
-              "type": ["object", "null"],
+              "type": ["object"],
               "description": "Language Specific config",
               "additionalProperties": false,
               "properties": {
