@@ -39,7 +39,7 @@ Can be used by itself, but it's recommended to use it alongside the builtin inde
     /* Remove lines from the hover at the beginning and end that have less characters than this */
     "indenticator.hover.trimLinesShorterThan": 2,
     /* Block placeholder to be written between peeked lines */
-    "indenticator.hover.peekBlockPlaceholder"; "...",
+    "indenticator.hover.peekBlockPlaceholder": "...",
     /* A construct with language identifiers as properties containing a subset of indenticator options to be applied to that language */
     "indenticator.languageSpecific": {}
 }
