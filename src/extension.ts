@@ -4,7 +4,8 @@
 import {window, commands, Disposable, ExtensionContext, StatusBarAlignment,
         StatusBarItem, TextDocument, TextEditor, TextEditorOptions,
         TextEditorDecorationType, TextLine, Selection, Range,
-        Position, workspace, env, languages} from 'vscode';
+        Position, workspace, env, languages, WorkspaceConfiguration
+} from 'vscode';
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: ExtensionContext) {
@@ -20,6 +21,15 @@ export function activate(context: ExtensionContext) {
 export function deactivate() {
 }
 
+class LanguageConfig {
+    constructor(public langConfig: any,
+                public config: WorkspaceConfiguration) {}
+
+    get<T>(name: string, defaultValue?:T ): T {
+        return this.langConfig[`indenticator.${name}`]
+               || this.config.get(name, defaultValue);
+    }
+}
 
 export class IndentSpy {
     _locales: Object;
@@ -53,7 +63,7 @@ export class IndentSpy {
 
     public updateConfig() {
         this._clearDecorators();
-        let config = workspace.getConfiguration('indenticator');
+
         let locale = env.language;
         let multipartLocale = env.language.indexOf('-');
         if(multipartLocale >= 0) {
@@ -65,20 +75,28 @@ export class IndentSpy {
         } else {
             this._currentLocale = this._locales[locale];
         }
+        let langConfig = {};
+        let config = workspace.getConfiguration('indenticator');
+        if(window.activeTextEditor) {
+            let docLang = window.activeTextEditor.document.languageId
+            let allLangConfig = config.get("languageSpecific", {});
+            let langConfig = allLangConfig[`[${docLang}]`] || {};
+        }
+        let myConf = new LanguageConfig(langConfig, config);
 
         this._indicatorStyle = window.createTextEditorDecorationType({
             dark: {
-                borderColor: config.get('color.dark', '#888'),
-                borderStyle: config.get('style', 'solid'),
-                borderWidth: config.get('width', 1) + "px"
+                borderColor: myConf.get('color.dark', '#888'),
+                borderStyle: myConf.get('style', 'solid'),
+                borderWidth: myConf.get('width', 1) + "px"
             },
             light: {
-                borderColor: config.get('color.light', '#999'),
-                borderStyle: config.get('style', 'solid'),
-                borderWidth: config.get('width', 1) + "px"
+                borderColor: myConf.get('color.light', '#999'),
+                borderStyle: myConf.get('style', 'solid'),
+                borderWidth: myConf.get('width', 1) + "px"
             }
         });
-        if(config.get('showCurrentDepthInStatusBar', true)) {
+        if(myConf.get('showCurrentDepthInStatusBar', true)) {
             if(!this._statusBarItem) {
                 this._statusBarItem = window.createStatusBarItem(
                     StatusBarAlignment.Right, 100);
@@ -87,7 +105,7 @@ export class IndentSpy {
             this._statusBarItem.dispose();
             this._statusBarItem = undefined;
         }
-        let showHover = config.get('showHover', false);
+        let showHover = myConf.get('showHover', false);
         if(typeof showHover === 'boolean') {
             this._showHover = showHover ? 1 : 0;
         } else {
@@ -95,11 +113,11 @@ export class IndentSpy {
         }
         if(this._showHover) {
             this._hoverConf = {
-                peekBack: config.get('hover.peekBack', 1),
-                peekForward: config.get('hover.peekForward', 0),
-                trimLinesShorterThan: config.get(
+                peekBack: myConf.get('hover.peekBack', 1),
+                peekForward: myConf.get('hover.peekForward', 0),
+                trimLinesShorterThan: myConf.get(
                     'hover.trimLinesShorterThan', 2),
-                peekBlockPlaceholder: config.get(
+                peekBlockPlaceholder: myConf.get(
                     'hover.peekBlockPlaceholder', '...')
             };
         } else if (this._hoverProvider) {
@@ -386,7 +404,7 @@ class IndentSpyController {
         window.onDidChangeTextEditorSelection(
             this._onUpdateEvent, this, subscriptions);
         window.onDidChangeActiveTextEditor(
-            this._onUpdateEvent, this, subscriptions);
+            this._onChangedEditor, this, subscriptions);
 
         // subscribe to configuration change events
         workspace.onDidChangeConfiguration(
@@ -400,6 +418,11 @@ class IndentSpyController {
     }
 
     private _onUpdateEvent(e) {
+        this._indentSpy.updateCurrentIndent();
+    }
+
+    private _onChangedEditor(e) {
+        this._indentSpy.updateConfig();
         this._indentSpy.updateCurrentIndent();
     }
 
