@@ -91,9 +91,29 @@
           "description": "Wether to display the current indent depth on the statusbar"
         },
         "indenticator.showHover": {
-          "type": "boolean",
+          "type": ["boolean", "number"],
           "default": false,
-          "description": "Wether to display the hover near the indent line"
+          "description": "Wether to display the hover near the indent line, or minimum number of lines in current indent block to activate the hover."
+        },
+        "indenticator.hover.peekBack": {
+          "type": "number",
+          "default": 1,
+          "description": "Lines before the current indent to be shown on hover"
+        },
+        "indenticator.hover.peekForward": {
+          "type": "number",
+          "default": 0,
+          "description": "Lines after the current indent to be shown on hover"
+        },
+        "indenticator.hover.trimLinesShorterThan": {
+          "type": "number",
+          "default": 2,
+          "description": "Remove lines from the hover at the beginning and end that have less characters than this"
+        },
+        "indenticator.hover.peekBlockPlaceholder": {
+          "type": "string",
+          "default": "...",
+          "description": "Block placeholder to be written between peeked lines."
         }
       }
     }
