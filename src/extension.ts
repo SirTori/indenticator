@@ -26,8 +26,11 @@ class LanguageConfig {
                 public config: WorkspaceConfiguration) {}
 
     get<T>(name: string, defaultValue?:T ): T {
-        return this.langConfig[`indenticator.${name}`]
-               || this.config.get(name, defaultValue);
+        let v = this.langConfig[`indenticator.${name}`];
+        if(v !== undefined) {
+            return v;
+        }
+        return this.config.get(name, defaultValue);
     }
 }
 
@@ -80,7 +83,7 @@ export class IndentSpy {
         if(window.activeTextEditor) {
             let docLang = window.activeTextEditor.document.languageId
             let allLangConfig = config.get("languageSpecific", {});
-            let langConfig = allLangConfig[`[${docLang}]`] || {};
+            langConfig = allLangConfig[`[${docLang}]`] || {};
         }
         let myConf = new LanguageConfig(langConfig, config);
 
