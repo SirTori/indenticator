@@ -1,3 +1,9 @@
+# 0.4.1
+
+## Patch
+
+- Fixed Issue #5: Language specific settings will now be applied correctly
+
 # 0.4.0
 
 ## Minor
