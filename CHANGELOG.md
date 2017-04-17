@@ -1,3 +1,9 @@
+# 0.4.2
+
+## Patch
+
+- Fixed Issue #6: include first and last line of file in hover
+
 # 0.4.1
 
 ## Patch
