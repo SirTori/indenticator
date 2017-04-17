@@ -383,6 +383,14 @@ suite("Extension Tests", () => {
                     assert.equal(lines[2], "foo();");
                     assert.equal(lines[3], "if(foo()) {");
                  });
+            test("includes first line of file (issue #6)",
+                 () => {
+                    IndentSpy._hoverConf.peekBack = 1;
+                    IndentSpy._firstLine = 0;
+                    let lines = IndentSpy._peekBack(editor.document, 2, 0);
+                    assert.equal(lines.length, 1);
+                    assert.equal(lines[0], "() => {");
+                 });
         });
 
         suite("_peekForward", () => {
@@ -475,6 +483,16 @@ suite("Extension Tests", () => {
                     assert.equal(lines[1], "//foo?");
                     assert.equal(lines[2], "//");
                     assert.equal(lines[3], "foo();");
+                 });
+            test("includes last line of file (issue #6)",
+                 () => {
+                    IndentSpy._hoverConf.peekForward = 1;
+                    IndentSpy._hoverConf.trimLinesShorterThan = 0;
+                    IndentSpy._firstLine = 0;
+                    IndentSpy._lastLine = 8;
+                    let lines = IndentSpy._peekForward(editor.document, 2, 0);
+                    assert.equal(lines.length, 1);
+                    assert.equal(lines[0], "}");
                  });
         });
 
