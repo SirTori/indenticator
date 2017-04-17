@@ -246,7 +246,7 @@ export class IndentSpy {
         let backHoverLines = [];
         if(this._hoverConf.peekBack > 0) {
             let firstPeekLine = Math.max(
-                this._firstLine - (this._hoverConf.peekBack - 1), 1);
+                this._firstLine - (this._hoverConf.peekBack - 1), 0);
             let pushedOnce = false;
             for(let i = firstPeekLine; i <= this._firstLine; i++) {
                 let line = document.lineAt(i)
@@ -273,7 +273,7 @@ export class IndentSpy {
         if(this._hoverConf.peekForward > 0) {
             let lastPeekLine = Math.min(
                 this._lastLine + (this._hoverConf.peekForward - 1),
-                document.lineCount);
+                document.lineCount - 1);
             let pushedOnce = false;
             for(let i = lastPeekLine; i >= this._lastLine; i--) {
                 let line = document.lineAt(i)
