@@ -51,6 +51,7 @@ export class IndentSpy {
         trimLinesShorterThan: number,
         peekBlockPlaceholder: string
     };
+    _columnPriority: boolean;
 
     constructor() {
         this._locales = {
@@ -126,6 +127,7 @@ export class IndentSpy {
         } else if (this._hoverProvider) {
             this._hoverProvider.dispose();
         }
+        this._columnPriority = myConf.get("columnPriorityMode",true);
         this.updateCurrentIndent();
     }
 
@@ -326,21 +328,108 @@ export class IndentSpy {
                             tabSize: number) {
         if(selection.isSingleLine) {
             let line = document.lineAt(selection.start.line);
+            if (!this._columnPriority) {
+                return this._getIndentDepth(this._getIndentWithBracket(document, line,selection,tabSize), tabSize)+1;
+            }
             return this._getIndentDepth(
-                Math.min(selection.start.character,
+                Math.min(selection.start.character+1,
                          line.firstNonWhitespaceCharacterIndex),
                 tabSize);
         }
         let selectedIndent = Number.MAX_VALUE;
-        for(let i = selection.start.line; i <= selection.end.line; i++) {
-            let line = document.lineAt(i);
-            if(line.isEmptyOrWhitespace) {
-                continue;
+        let targetCol;
+        if (this._columnPriority) {
+            for (let i = selection.start.line; i <= selection.end.line; i++) {
+                let line = document.lineAt(i);
+                if (line.isEmptyOrWhitespace) {
+                    continue;
+                }
+                selectedIndent = Math.min(selectedIndent,
+                    this._getLinesIndentDepth(line, tabSize));
             }
-            selectedIndent = Math.min(selectedIndent,
-                                      this._getLinesIndentDepth(line, tabSize));
+        }else{
+            selectedIndent = this._getIndentDepth(Math.min(
+                this._getIndentWithBracket(document, document.lineAt(selection.start.line),
+                    new Selection(selection.start, selection.start), tabSize),
+                this._getIndentWithBracket(document, document.lineAt(selection.end.line),
+                    new Selection(selection.end, selection.end), tabSize))
+                , tabSize)+1;
         }
         return selectedIndent;
+    }
+
+    _getIndentWithBracket(document: TextDocument, line: TextLine, selection: Selection, tabSize: number) {
+        let currentColumn= selection.start.character;
+
+        //case 1: blank -> follow before line
+        if (line.isEmptyOrWhitespace) {
+            if (line.lineNumber == 0) {
+                return 0;
+            }
+            while (line.isEmptyOrWhitespace && line.lineNumber >= 0) {
+                line = document.lineAt(line.lineNumber - 1);
+            }
+            currentColumn = line.text.length;
+        }
+
+        let befText;
+        if (line.firstNonWhitespaceCharacterIndex < currentColumn) {
+            befText = line.text.substr(line.firstNonWhitespaceCharacterIndex,
+                currentColumn - line.firstNonWhitespaceCharacterIndex);
+        } else {
+            befText = "";
+        }
+        //text or TAG
+        let openReg, closeReg, closeNum, openNum, closeHeadReg;
+        let languageId = document.languageId;
+        if (languageId == "html" || languageId == "xml" || languageId == "xsl") {
+            openReg = new RegExp("<[a-zA-z]", "g");
+            closeReg = new RegExp("</[a-zA-Z]", "g");
+            closeHeadReg = new RegExp("^</[a-zA-Z]");
+        } else {
+            openReg = new RegExp("[({[]", "g");
+            closeReg = new RegExp("[\\])}]", "g");
+            closeHeadReg = new RegExp("^[\\])}]");
+        }
+        openNum = (befText.match(openReg) || []).length;
+        closeNum = (befText.match(closeReg) || []).length;
+
+        let case5Flag = false;
+        if (openNum > closeNum) {
+            openNum = (line.text.match(openReg) || []).length;
+            closeNum = (line.text.match(closeReg) || []).length;
+            if (openNum > closeNum) {
+                //case 2: next line is indent up -> use top of this line
+                return line.firstNonWhitespaceCharacterIndex;
+            }
+            // if =    ->  case 5
+            // if <    ->  case 5
+            case5Flag = true;
+        }
+
+        currentColumn = line.firstNonWhitespaceCharacterIndex;
+        if (case5Flag ||
+            openNum < closeNum || 0 >= line.lineNumber - 1) {
+            //case 3: indent down compare to before line ->  search from before line (case 5)
+        } else {
+            if (line.text.substr(currentColumn, 2).match(closeHeadReg)) {
+                //case 4: indent back line(start with "}" case). -> (case 5)
+                currentColumn++;
+            }
+        }
+
+        //case 5: normal line -> search before line where less indent.
+        let beforeLine = line;
+        while (beforeLine.lineNumber > 0) {
+            beforeLine = document.lineAt(beforeLine.lineNumber - 1);;
+            if (beforeLine.isEmptyOrWhitespace) {
+                continue;
+            }
+            if (beforeLine.firstNonWhitespaceCharacterIndex < currentColumn) {
+                break;
+            }
+        }
+        return beforeLine.firstNonWhitespaceCharacterIndex;
     }
 
     _getActiveIndentRanges(document: TextDocument, selection: Selection,
