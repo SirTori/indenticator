@@ -328,13 +328,13 @@ export class IndentSpy {
                             tabSize: number) {
         if(selection.isSingleLine) {
             let line = document.lineAt(selection.start.line);
-            if (!this._columnPriority) {
-                return this._getIndentDepth(this._getIndentWithBracket(document, line,selection,tabSize), tabSize)+1;
+            if (this._columnPriority) {
+                return this._getIndentDepth(
+                    Math.min(selection.start.character,
+                             line.firstNonWhitespaceCharacterIndex),
+                    tabSize);
             }
-            return this._getIndentDepth(
-                Math.min(selection.start.character+1,
-                         line.firstNonWhitespaceCharacterIndex),
-                tabSize);
+            return this._getIndentDepth(this._getIndentWithBracket(document, line,selection,tabSize), tabSize)+1;
         }
         let selectedIndent = Number.MAX_VALUE;
         let targetCol;
