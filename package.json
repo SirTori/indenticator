@@ -175,6 +175,11 @@
                   "type": "string",
                   "default": "...",
                   "description": "Block placeholder to be written between peeked lines."
+                },
+                "indenticator.columnPriorityMode": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "Column position is prior to position of relative to bracket."
                 }
               }
             }
