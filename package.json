@@ -65,6 +65,11 @@
       "type": "object",
       "title": "Indenticator Configuration",
       "properties": {
+        "indenticator.showHighlight": {
+          "type": "boolean",
+          "default": true,
+          "description": "Wether to highlight the indent of the block enclosing the current line"
+        },
         "indenticator.color.dark": {
           "type": "string",
           "default": "#888",
@@ -81,6 +86,31 @@
           "description": "Width of the indent marker in pixels"
         },
         "indenticator.style": {
+          "type": "string",
+          "default": "solid",
+          "description": "Line style of the indent marker"
+        },
+        "indenticator.inner.showHighlight": {
+          "type": "boolean",
+          "default": false,
+          "description": "Wether to highlight the indent of the block enclosed by the current line"
+        },
+        "indenticator.inner.color.dark": {
+          "type": "string",
+          "default": "#888",
+          "description": "Color of the indent marker for dark themes"
+        },
+        "indenticator.inner.color.light": {
+          "type": "string",
+          "default": "#999",
+          "description": "Color of the indent marker for light themes"
+        },
+        "indenticator.inner.width": {
+          "type": "number",
+          "default": 1,
+          "description": "Width of the indent marker in pixels"
+        },
+        "indenticator.inner.style": {
           "type": "string",
           "default": "solid",
           "description": "Line style of the indent marker"
@@ -115,6 +145,31 @@
           "default": "...",
           "description": "Block placeholder to be written between peeked lines"
         },
+        "indenticator.inner.showHover": {
+          "type": ["boolean", "number"],
+          "default": false,
+          "description": "Wether to display the hover near the inner indent line, or minimum number of lines in current indent block to activate the hover."
+        },
+        "indenticator.inner.hover.peekBack": {
+          "type": "number",
+          "default": 1,
+          "description": "Lines before the current inner indent to be shown on hover"
+        },
+        "indenticator.inner.hover.peekForward": {
+          "type": "number",
+          "default": 0,
+          "description": "Lines after the current inner indent to be shown on hover"
+        },
+        "indenticator.inner.hover.trimLinesShorterThan": {
+          "type": "number",
+          "default": 2,
+          "description": "Remove lines from the inner indent hover at the beginning and end that have less characters than this"
+        },
+        "indenticator.inner.hover.peekBlockPlaceholder": {
+          "type": "string",
+          "default": "...",
+          "description": "Block placeholder to be written between peeked lines for the hover of the inner indent"
+        },
         "indenticator.languageSpecific": {
           "type": ["object"],
           "default": {},
@@ -126,6 +181,11 @@
               "description": "Language Specific config",
               "additionalProperties": false,
               "properties": {
+                "indenticator.showHighlight": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "Wether to highlight the indent of the block enclosing the current line"
+                },
                 "indenticator.color.dark": {
                   "type": "string",
                   "default": "#888",
@@ -142,6 +202,31 @@
                   "description": "Width of the indent marker in pixels"
                 },
                 "indenticator.style": {
+                  "type": "string",
+                  "default": "solid",
+                  "description": "Line style of the indent marker"
+                },
+                "indenticator.inner.showHighlight": {
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Wether to highlight the indent of the block enclosed by the current line"
+                },
+                "indenticator.inner.color.dark": {
+                  "type": "string",
+                  "default": "#888",
+                  "description": "Color of the indent marker for dark themes"
+                },
+                "indenticator.inner.color.light": {
+                  "type": "string",
+                  "default": "#999",
+                  "description": "Color of the indent marker for light themes"
+                },
+                "indenticator.inner.width": {
+                  "type": "number",
+                  "default": 1,
+                  "description": "Width of the indent marker in pixels"
+                },
+                "indenticator.inner.style": {
                   "type": "string",
                   "default": "solid",
                   "description": "Line style of the indent marker"
@@ -174,7 +259,32 @@
                 "indenticator.hover.peekBlockPlaceholder": {
                   "type": "string",
                   "default": "...",
-                  "description": "Block placeholder to be written between peeked lines."
+                  "description": "Block placeholder to be written between peeked lines"
+                },
+                "indenticator.inner.showHover": {
+                  "type": ["boolean", "number"],
+                  "default": false,
+                  "description": "Wether to display the hover near the inner indent line, or minimum number of lines in current indent block to activate the hover."
+                },
+                "indenticator.inner.hover.peekBack": {
+                  "type": "number",
+                  "default": 1,
+                  "description": "Lines before the current inner indent to be shown on hover"
+                },
+                "indenticator.inner.hover.peekForward": {
+                  "type": "number",
+                  "default": 0,
+                  "description": "Lines after the current inner indent to be shown on hover"
+                },
+                "indenticator.inner.hover.trimLinesShorterThan": {
+                  "type": "number",
+                  "default": 2,
+                  "description": "Remove lines from the inner indent hover at the beginning and end that have less characters than this"
+                },
+                "indenticator.inner.hover.peekBlockPlaceholder": {
+                  "type": "string",
+                  "default": "...",
+                  "description": "Block placeholder to be written between peeked lines for the hover of the inner indent"
                 }
               }
             }

@@ -244,7 +244,7 @@ suite("Extension Tests", () => {
             });
 
             test("returns a set of ranges for all lines enclosing the" +
-                 " selection with the same or higher indent",
+                 " selection with the same or higher indent as outer",
                  () => {
                     let selection = new vscode.Selection(4, 9, 4, 9);
                     let selectedIndent = 1;
@@ -259,10 +259,10 @@ suite("Extension Tests", () => {
                         IndentSpy._createIndicatorRange(5, 0),
                         IndentSpy._createIndicatorRange(6, 0),
                     ]
-                    assert.equal(result.length, expectedRanges.length);
+                    assert.equal(result.outer.length, expectedRanges.length);
 
                     for(let i = 0; i < expectedRanges.length; i++) {
-                        assert(result.find(findRangePredicate(expectedRanges[i])),
+                        assert(result.outer.find(findRangePredicate(expectedRanges[i])),
                                `(${expectedRanges[i].start.line}, ${expectedRanges[i].start.character})`);
                     }
                 }
@@ -270,7 +270,7 @@ suite("Extension Tests", () => {
 
             test("returns a set of ranges for all lines enclosing the" +
                  " selection with the same or higher indent stopping at lower" +
-                 " indets",
+                 " indets as outer",
                  () => {
                     let selection = new vscode.Selection(3, 6, 3, 6);
                     let selectedIndent = 2;
@@ -281,10 +281,10 @@ suite("Extension Tests", () => {
                         IndentSpy._createIndicatorRange(2, tabSize),
                         IndentSpy._createIndicatorRange(3, tabSize),
                     ]
-                    assert.equal(result.length, expectedRanges.length);
+                    assert.equal(result.outer.length, expectedRanges.length);
 
                     for(let i = 0; i < expectedRanges.length; i++) {
-                        assert(result.find(findRangePredicate(expectedRanges[i])),
+                        assert(result.outer.find(findRangePredicate(expectedRanges[i])),
                                `(${expectedRanges[i].start.line}, ${expectedRanges[i].start.character}) not in generated ranges`);
                     }
                 }
@@ -318,29 +318,28 @@ suite("Extension Tests", () => {
             });
 
             setup(() => {
-                IndentSpy._hoverConf = {
+                IndentSpy._outerConf.hoverConf = {
                     peekBack: 3,
                     peekForward: 0,
                     trimLinesShorterThan: 2,
                     peekBlockPlaceholder: '...'
                 };
-                IndentSpy._firstLine = 4;
-                IndentSpy._lastLine = 7;
-                IndentSpy._rangeAtThisLineMaker = IndentSpy
-                    ._createIndicatorRange(4, 4);
+                IndentSpy._outerConf.firstLine = 4;
+                IndentSpy._outerConf.lastLine = 7;
+                IndentSpy._outerConf.indentPos = 4;
             })
 
             test("returns empty list if peekBack is lower than 1",
                  () => {
-                    IndentSpy._hoverConf.peekBack = -1;
-                    let lines = IndentSpy._peekBack(editor.document, 2, 1);
+                    IndentSpy._outerConf.hoverConf.peekBack = -1;
+                    let lines = IndentSpy._peekBack(editor.document, 2, 1, IndentSpy._outerConf);
                     assert.equal(lines.length, 0);
                  });
             test("reutrns a list containing the configured number of" +
                  " lines from before the currently active indent block and" +
                  " trims their leading whitespace characters",
                  () => {
-                    let lines = IndentSpy._peekBack(editor.document, 2, 1);
+                    let lines = IndentSpy._peekBack(editor.document, 2, 1, IndentSpy._outerConf);
                     assert.equal(lines.length, 3);
                     assert.equal(lines[0], "//");
                     assert.equal(lines[1], "foo();");
@@ -348,15 +347,15 @@ suite("Extension Tests", () => {
                  });
             test("peeks at maximum the confgiured number of lines",
                  () => {
-                    IndentSpy._hoverConf.peekBack = 1;
-                    let lines = IndentSpy._peekBack(editor.document, 2, 1);
+                    IndentSpy._outerConf.hoverConf.peekBack = 1;
+                    let lines = IndentSpy._peekBack(editor.document, 2, 1, IndentSpy._outerConf);
                     assert.equal(lines.length, 1);
                     assert.equal(lines[0], "if(foo()) {");
                  });
             test("stops at changing indent depth",
                  () => {
-                    IndentSpy._hoverConf.peekBack = 5;
-                    let lines = IndentSpy._peekBack(editor.document, 2, 1);
+                    IndentSpy._outerConf.hoverConf.peekBack = 5;
+                    let lines = IndentSpy._peekBack(editor.document, 2, 1, IndentSpy._outerConf);
                     assert.equal(lines.length, 4);
                     assert.equal(lines[0], "//foo?");
                     assert.equal(lines[1], "//");
@@ -365,8 +364,8 @@ suite("Extension Tests", () => {
                  });
             test("trims lines shorter than configured value",
                  () => {
-                    IndentSpy._hoverConf.trimLinesShorterThan = 3;
-                    let lines = IndentSpy._peekBack(editor.document, 2, 1);
+                    IndentSpy._outerConf.hoverConf.trimLinesShorterThan = 3;
+                    let lines = IndentSpy._peekBack(editor.document, 2, 1, IndentSpy._outerConf);
                     assert.equal(lines.length, 2);
                     assert.equal(lines[0], "foo();");
                     assert.equal(lines[1], "if(foo()) {");
@@ -374,9 +373,9 @@ suite("Extension Tests", () => {
             test("doesn't trim lines shorter than configured value if" +
                  " another before line is already peeked",
                  () => {
-                    IndentSpy._hoverConf.peekBack = 4;
-                    IndentSpy._hoverConf.trimLinesShorterThan = 4;
-                    let lines = IndentSpy._peekBack(editor.document, 2, 1);
+                    IndentSpy._outerConf.hoverConf.peekBack = 4;
+                    IndentSpy._outerConf.hoverConf.trimLinesShorterThan = 4;
+                    let lines = IndentSpy._peekBack(editor.document, 2, 1, IndentSpy._outerConf);
                     assert.equal(lines.length, 4);
                     assert.equal(lines[0], "//foo?");
                     assert.equal(lines[1], "//");
@@ -385,9 +384,9 @@ suite("Extension Tests", () => {
                  });
             test("includes first line of file (issue #6)",
                  () => {
-                    IndentSpy._hoverConf.peekBack = 1;
-                    IndentSpy._firstLine = 0;
-                    let lines = IndentSpy._peekBack(editor.document, 2, 0);
+                    IndentSpy._outerConf.hoverConf.peekBack = 1;
+                    IndentSpy._outerConf.firstLine = 0;
+                    let lines = IndentSpy._peekBack(editor.document, 2, 0, IndentSpy._outerConf);
                     assert.equal(lines.length, 1);
                     assert.equal(lines[0], "() => {");
                  });
@@ -418,29 +417,28 @@ suite("Extension Tests", () => {
             });
 
             setup(() => {
-                IndentSpy._hoverConf = {
+                IndentSpy._outerConf.hoverConf = {
                     peekBack: 0,
                     peekForward: 3,
                     trimLinesShorterThan: 2,
                     peekBlockPlaceholder: '...'
                 };
-                IndentSpy._firstLine = 1;
-                IndentSpy._lastLine = 4;
-                IndentSpy._rangeAtThisLineMaker = IndentSpy
-                    ._createIndicatorRange(4, 4);
+                IndentSpy._outerConf.firstLine = 1;
+                IndentSpy._outerConf.lastLine = 4;
+                IndentSpy._outerConf.indentPos = 4
             })
 
             test("returns empty list if peekForward is lower than 1",
                  () => {
-                    IndentSpy._hoverConf.peekForward = -1;
-                    let lines = IndentSpy._peekForward(editor.document, 2, 1);
+                    IndentSpy._outerConf.hoverConf.peekForward = -1;
+                    let lines = IndentSpy._peekForward(editor.document, 2, 1, IndentSpy._outerConf);
                     assert.equal(lines.length, 0);
                  });
             test("reutrns a list containing the configured number of" +
                  " lines from after the currently active indent block in " +
                  " reverse order and trims their leading whitespace characters",
                  () => {
-                    let lines = IndentSpy._peekForward(editor.document, 2, 1);
+                    let lines = IndentSpy._peekForward(editor.document, 2, 1, IndentSpy._outerConf);
                     assert.equal(lines.length, 3);
                     assert.equal(lines[0], "}");
                     assert.equal(lines[1], "//foo?");
@@ -448,16 +446,16 @@ suite("Extension Tests", () => {
                  });
             test("peeks at maximum the confgiured number of lines",
                  () => {
-                    IndentSpy._hoverConf.peekForward = 2;
-                    let lines = IndentSpy._peekForward(editor.document, 2, 1);
+                    IndentSpy._outerConf.hoverConf.peekForward = 2;
+                    let lines = IndentSpy._peekForward(editor.document, 2, 1, IndentSpy._outerConf);
                     assert.equal(lines.length, 2);
                     assert.equal(lines[0], "}");
                     assert.equal(lines[1], "//foo?");
                  });
             test("stops at changing indent depth",
                  () => {
-                    IndentSpy._hoverConf.peekForward = 5;
-                    let lines = IndentSpy._peekForward(editor.document, 2, 1);
+                    IndentSpy._outerConf.hoverConf.peekForward = 5;
+                    let lines = IndentSpy._peekForward(editor.document, 2, 1, IndentSpy._outerConf);
                     assert.equal(lines.length, 4);
                     assert.equal(lines[0], "}");
                     assert.equal(lines[1], "//foo?");
@@ -466,8 +464,8 @@ suite("Extension Tests", () => {
                  });
             test("trims lines shorter than configured value",
                  () => {
-                    IndentSpy._hoverConf.trimLinesShorterThan = 3;
-                    let lines = IndentSpy._peekForward(editor.document, 2, 1);
+                    IndentSpy._outerConf.hoverConf.trimLinesShorterThan = 3;
+                    let lines = IndentSpy._peekForward(editor.document, 2, 1, IndentSpy._outerConf);
                     assert.equal(lines.length, 2);
                     assert.equal(lines[0], "}");
                     assert.equal(lines[1], "//foo?");
@@ -475,9 +473,9 @@ suite("Extension Tests", () => {
             test("doesn't trim lines shorter than configured value if" +
                  " another before line is already peeked",
                  () => {
-                    IndentSpy._hoverConf.peekForward = 4;
-                    IndentSpy._hoverConf.trimLinesShorterThan = 4;
-                    let lines = IndentSpy._peekForward(editor.document, 2, 1);
+                    IndentSpy._outerConf.hoverConf.peekForward = 4;
+                    IndentSpy._outerConf.hoverConf.trimLinesShorterThan = 4;
+                    let lines = IndentSpy._peekForward(editor.document, 2, 1, IndentSpy._outerConf);
                     assert.equal(lines.length, 4);
                     assert.equal(lines[0], "}");
                     assert.equal(lines[1], "//foo?");
@@ -486,11 +484,11 @@ suite("Extension Tests", () => {
                  });
             test("includes last line of file (issue #6)",
                  () => {
-                    IndentSpy._hoverConf.peekForward = 1;
-                    IndentSpy._hoverConf.trimLinesShorterThan = 0;
-                    IndentSpy._firstLine = 0;
-                    IndentSpy._lastLine = 8;
-                    let lines = IndentSpy._peekForward(editor.document, 2, 0);
+                    IndentSpy._outerConf.hoverConf.peekForward = 1;
+                    IndentSpy._outerConf.hoverConf.trimLinesShorterThan = 0;
+                    IndentSpy._outerConf.firstLine = 0;
+                    IndentSpy._outerConf.lastLine = 8;
+                    let lines = IndentSpy._peekForward(editor.document, 2, 0, IndentSpy._outerConf);
                     assert.equal(lines.length, 1);
                     assert.equal(lines[0], "}");
                  });
@@ -504,7 +502,7 @@ suite("Extension Tests", () => {
             });
 
             setup(() => {
-                IndentSpy._hoverConf = {
+                IndentSpy._outerConf.hoverConf = {
                     peekBack: 0,
                     peekForward: 3,
                     trimLinesShorterThan: 2,
@@ -518,8 +516,8 @@ suite("Extension Tests", () => {
                 editor.options.tabSize = 2;
                 tabSize = IndentSpy._getTabSize(
                     vscode.window.activeTextEditor.options);
-                IndentSpy._hoverConf.peekBlockPlaceholder = 'foo!';
-                let result = IndentSpy._buildHoverPlaceholder(editor, tabSize);
+                IndentSpy._outerConf.hoverConf.peekBlockPlaceholder = 'foo!';
+                let result = IndentSpy._buildHoverPlaceholder(editor, tabSize, IndentSpy._outerConf);
                 assert.equal(result, "  foo!");
             });
 
@@ -528,8 +526,8 @@ suite("Extension Tests", () => {
                 editor.options.tabSize = 3;
                 tabSize = IndentSpy._getTabSize(
                     vscode.window.activeTextEditor.options);
-                IndentSpy._hoverConf.peekBlockPlaceholder = 'bar!';
-                let result = IndentSpy._buildHoverPlaceholder(editor, tabSize);
+                IndentSpy._outerConf.hoverConf.peekBlockPlaceholder = 'bar!';
+                let result = IndentSpy._buildHoverPlaceholder(editor, tabSize, IndentSpy._outerConf);
                 assert.equal(result, "\tbar!");
             });
         });
@@ -562,21 +560,20 @@ suite("Extension Tests", () => {
             });
 
             setup(() => {
-                IndentSpy._hoverConf = {
+                IndentSpy._outerConf.hoverConf = {
                     peekBack: 3,
                     peekForward: 3,
                     trimLinesShorterThan: 3,
                     peekBlockPlaceholder: '// my indent block'
                 };
-                IndentSpy._firstLine = 4;
-                IndentSpy._lastLine = 7;
-                IndentSpy._rangeAtThisLineMaker = IndentSpy
-                    ._createIndicatorRange(4, 4);
+                IndentSpy._outerConf.firstLine = 4;
+                IndentSpy._outerConf.lastLine = 7;
+                IndentSpy._outerConf.indentPos = 4;
             })
 
             test("returns a block using the configured peek options",
                  () => {
-                    let block = IndentSpy._buildHoverString(editor, tabSize);
+                    let block = IndentSpy._buildHoverString(editor, tabSize, IndentSpy._outerConf);
                     assert.equal(
                         block,
                         "foo();\n" +

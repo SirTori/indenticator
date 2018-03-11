@@ -34,23 +34,28 @@ class LanguageConfig {
     }
 }
 
-export class IndentSpy {
-    _locales: Object;
-    _currentLocale: Object;
-    _statusBarItem: StatusBarItem;
-    _indicatorStyle: TextEditorDecorationType;
-
-    _firstLine: number;
-    _lastLine: number;
-    _hoverProvider: Disposable;
-    _rangeAtThisLineMaker: Range;
-    _showHover: number;
-    _hoverConf: {
+class IndentConfiguration {
+    show: boolean;
+    style: TextEditorDecorationType;
+    hover: number;
+    hoverConf: {
         peekBack: number,
         peekForward: number,
         trimLinesShorterThan: number,
         peekBlockPlaceholder: string
     };
+    hoverProvider: Disposable
+    firstLine: number;
+    lastLine: number;
+    indentPos: number;
+}
+
+export class IndentSpy {
+    _locales: Object;
+    _currentLocale: Object;
+    _statusBarItem: StatusBarItem;
+    _outerConf: IndentConfiguration = new IndentConfiguration();
+    _innerConf: IndentConfiguration = new IndentConfiguration();
 
     constructor() {
         this._locales = {
@@ -87,7 +92,20 @@ export class IndentSpy {
         }
         let myConf = new LanguageConfig(langConfig, config);
 
-        this._indicatorStyle = window.createTextEditorDecorationType({
+        if(myConf.get('showCurrentDepthInStatusBar', true)) {
+            if(!this._statusBarItem) {
+                this._statusBarItem = window.createStatusBarItem(
+                    StatusBarAlignment.Right, 100);
+            }
+        } else if(this._statusBarItem) {
+            this._statusBarItem.dispose();
+            this._statusBarItem = undefined;
+        }
+
+        this._outerConf.show = myConf.get('showHighlight', true);
+        this._innerConf.show = myConf.get('inner.showHighlight', false);
+
+        let styling = {
             dark: {
                 borderColor: myConf.get('color.dark', '#888'),
                 borderStyle: myConf.get('style', 'solid'),
@@ -98,24 +116,37 @@ export class IndentSpy {
                 borderStyle: myConf.get('style', 'solid'),
                 borderWidth: myConf.get('width', 1) + "px"
             }
-        });
-        if(myConf.get('showCurrentDepthInStatusBar', true)) {
-            if(!this._statusBarItem) {
-                this._statusBarItem = window.createStatusBarItem(
-                    StatusBarAlignment.Right, 100);
+        };
+
+        this._outerConf.style = window.createTextEditorDecorationType(styling);
+
+        this._innerConf.style = window.createTextEditorDecorationType({
+            dark: {
+                borderColor: myConf.get(
+                    'inner.color.dark', styling.dark.borderColor),
+                borderStyle: myConf.get(
+                    'inner.style', styling.dark.borderStyle),
+                borderWidth: myConf.get(
+                    'inner.width', Number.parseInt(styling.dark.borderWidth)) + "px"
+            },
+            light: {
+                borderColor: myConf.get(
+                    'inner.color.light', styling.light.borderColor),
+                borderStyle: myConf.get(
+                    'inner.style', styling.light.borderStyle),
+                borderWidth: myConf.get(
+                    'inner.width', Number.parseInt(styling.light.borderWidth)) + "px"
             }
-        } else if(this._statusBarItem) {
-            this._statusBarItem.dispose();
-            this._statusBarItem = undefined;
-        }
-        let showHover = myConf.get('showHover', false);
+        });
+
+        let showHover:boolean|number = myConf.get('showHover', false);
         if(typeof showHover === 'boolean') {
-            this._showHover = showHover ? 1 : 0;
+            this._outerConf.hover = showHover ? 1 : 0;
         } else {
-            this._showHover = showHover;
+            this._outerConf.hover = showHover;
         }
-        if(this._showHover) {
-            this._hoverConf = {
+        if(this._outerConf.hover) {
+            this._outerConf.hoverConf = {
                 peekBack: myConf.get('hover.peekBack', 1),
                 peekForward: myConf.get('hover.peekForward', 0),
                 trimLinesShorterThan: myConf.get(
@@ -123,9 +154,35 @@ export class IndentSpy {
                 peekBlockPlaceholder: myConf.get(
                     'hover.peekBlockPlaceholder', '...')
             };
-        } else if (this._hoverProvider) {
-            this._hoverProvider.dispose();
+        } else if (this._outerConf.hoverProvider) {
+            this._outerConf.hoverProvider.dispose();
         }
+
+        showHover = myConf.get('inner.showHover', this._outerConf.hover);
+        if(typeof showHover === 'boolean') {
+            this._innerConf.hover = showHover ? 1 : 0;
+        } else {
+            this._innerConf.hover = showHover;
+        }
+        if(this._innerConf.hover) {
+            this._innerConf.hoverConf = {
+                peekBack: myConf.get(
+                    'inner.hover.peekBack',
+                    this._outerConf.hoverConf.peekBack),
+                peekForward: myConf.get(
+                    'inner.hover.peekForward',
+                    this._outerConf.hoverConf.peekForward),
+                trimLinesShorterThan: myConf.get(
+                    'inner.hover.trimLinesShorterThan',
+                    this._outerConf.hoverConf.trimLinesShorterThan),
+                peekBlockPlaceholder: myConf.get(
+                    'inner.hover.peekBlockPlaceholder',
+                    this._outerConf.hoverConf.peekBlockPlaceholder)
+            };
+        } else if (this._innerConf.hoverProvider) {
+            this._innerConf.hoverProvider.dispose();
+        }
+
         this.updateCurrentIndent();
     }
 
@@ -154,23 +211,33 @@ export class IndentSpy {
             return;
         }
 
-
         let tabSize = this._getTabSize(editor.options);
         let selectedIndent = this._getSelectedIndentDepth(document,
                                                           selection,
                                                           tabSize);
 
-        let activeIndentRanges = this._getActiveIndentRanges(document,
+        if(this._outerConf.show || this._innerConf.show) {
+            let activeRanges = this._getActiveIndentRanges(document,
                                                              selection,
                                                              selectedIndent,
                                                              tabSize)
-        if(this._showHover && activeIndentRanges.length >= this._showHover) {
-            this._buildHover(editor, tabSize);
-        } else if(this._hoverProvider) {
-            this._hoverProvider.dispose();
+            if(this._outerConf.show) {
+                editor.setDecorations(this._outerConf.style, activeRanges.outer);
+                if(activeRanges.outer.length >= this._outerConf.hover) {
+                    this._buildHover(editor, tabSize, this._outerConf);
+                } else if(this._outerConf.hoverProvider) {
+                    this._outerConf.hoverProvider.dispose();
         }
-
-        editor.setDecorations(this._indicatorStyle, activeIndentRanges);
+            }
+            if(this._innerConf.show) {
+                editor.setDecorations(this._innerConf.style, activeRanges.inner);
+                if(activeRanges.inner.length >= this._innerConf.hover) {
+                    this._buildHover(editor, tabSize, this._innerConf);
+                } else if(this._innerConf.hoverProvider) {
+                    this._innerConf.hoverProvider.dispose();
+                }
+            }
+        }
 
         if(this._statusBarItem){
             this._statusBarItem.text = this._currentLocale['statusText']
@@ -181,31 +248,32 @@ export class IndentSpy {
         }
     }
 
-    _buildHover(editor: TextEditor, tabSize: number) {
-        if (this._hoverProvider) {
-            this._hoverProvider.dispose();
+    _buildHover(editor: TextEditor, tabSize: number, conf: IndentConfiguration) {
+        if (conf.hoverProvider) {
+            conf.hoverProvider.dispose();
         }
-        this._hoverProvider = languages.registerHoverProvider(
+        conf.hoverProvider = languages.registerHoverProvider(
             editor.document.languageId,
             {
                 provideHover: (doc, position) => {
-                    return this._buildHoverprovider(position, editor, tabSize);
+                    return this._buildHoverprovider(position, editor, tabSize, conf);
                 }
             }
         );
     }
 
     _buildHoverprovider(position: Position, editor: TextEditor,
-                        tabSize: number) {
-        let char = this._rangeAtThisLineMaker.start.character
+                        tabSize: number, conf: IndentConfiguration) {
+        let char = conf.indentPos
         if(position.character > char -2
            && position.character < char +2
-           && position.line > this._firstLine
-           && position.line < this._lastLine) {
-            let str = this._buildHoverString(editor, tabSize);
+           && position.line >= conf.firstLine
+           && position.line <= conf.lastLine) {
+            let str = this._buildHoverString(editor, tabSize, conf);
             if(str) {
                 return {
-                    range: this._rangeAtThisLineMaker,
+                    range: new Range(conf.firstLine, conf.indentPos,
+                                     conf.lastLine, conf.indentPos),
                     contents: [
                         {
                             language: editor.document.languageId,
@@ -218,41 +286,43 @@ export class IndentSpy {
         }
     }
 
-    _buildHoverString(editor: TextEditor, tabSize: number): string {
+    _buildHoverString(editor: TextEditor, tabSize: number,
+                      conf: IndentConfiguration): string {
         let hoverLines = [];
         let document = editor.document;
         let refDepth = this._getLinesIndentDepth(
-            document.lineAt(this._firstLine), tabSize);
+            document.lineAt(conf.firstLine), tabSize);
 
-        let backHoverLines = this._peekBack(editor.document, tabSize, refDepth);
-        let forwardHoverLines = this._peekForward(editor.document, tabSize, refDepth);
+        let backHoverLines = this._peekBack(editor.document, tabSize, refDepth, conf);
+        let forwardHoverLines = this._peekForward(editor.document, tabSize, refDepth, conf);
 
         hoverLines.push(...backHoverLines);
         if(forwardHoverLines.length > 0 || backHoverLines.length > 0) {
-            hoverLines.push(this._buildHoverPlaceholder(editor, tabSize));
+            hoverLines.push(this._buildHoverPlaceholder(editor, tabSize, conf));
         }
         hoverLines.push(...forwardHoverLines);
         return hoverLines.join('\n');
     }
 
-    _buildHoverPlaceholder(editor: TextEditor, tabSize: number): string {
+    _buildHoverPlaceholder(editor: TextEditor, tabSize: number,
+                           conf: IndentConfiguration): string {
         let tabChar = editor.options.insertSpaces?' ':'\t';
         let spacing = tabChar.repeat(tabSize);
-        return `${spacing}${this._hoverConf.peekBlockPlaceholder}`;
+        return `${spacing}${conf.hoverConf.peekBlockPlaceholder}`;
     }
 
     _peekBack(document: TextDocument, tabSize: number,
-              refDepth: number): Array<string> {
+              refDepth: number, conf: IndentConfiguration): Array<string> {
         let backHoverLines = [];
-        if(this._hoverConf.peekBack > 0) {
+        if(conf.hoverConf.peekBack > 0) {
             let firstPeekLine = Math.max(
-                this._firstLine - (this._hoverConf.peekBack - 1), 0);
+                conf.firstLine - (conf.hoverConf.peekBack - 1), 0);
             let pushedOnce = false;
-            for(let i = firstPeekLine; i <= this._firstLine; i++) {
+            for(let i = firstPeekLine; i <= conf.firstLine; i++) {
                 let line = document.lineAt(i)
                 let lineStr = line.text.trim();
                 if(!pushedOnce &&
-                   lineStr.length < this._hoverConf.trimLinesShorterThan) {
+                   lineStr.length < conf.hoverConf.trimLinesShorterThan) {
                     continue;
                 }
                 let lineDepth = this._getLinesIndentDepth(line, tabSize);
@@ -268,18 +338,18 @@ export class IndentSpy {
     }
 
     _peekForward(document: TextDocument, tabSize: number,
-                 refDepth: number): Array<string> {
+                 refDepth: number, conf: IndentConfiguration): Array<string> {
         let forwardHoverLines = [];
-        if(this._hoverConf.peekForward > 0) {
+        if(conf.hoverConf.peekForward > 0) {
             let lastPeekLine = Math.min(
-                this._lastLine + (this._hoverConf.peekForward - 1),
+                conf.lastLine + (conf.hoverConf.peekForward - 1),
                 document.lineCount - 1);
             let pushedOnce = false;
-            for(let i = lastPeekLine; i >= this._lastLine; i--) {
+            for(let i = lastPeekLine; i >= conf.lastLine; i--) {
                 let line = document.lineAt(i)
                 let lineStr = line.text.trim();
                 if(!pushedOnce &&
-                   lineStr.length < this._hoverConf.trimLinesShorterThan) {
+                   lineStr.length < conf.hoverConf.trimLinesShorterThan) {
                     continue;
                 }
                 let lineDepth = this._getLinesIndentDepth(line, tabSize);
@@ -295,12 +365,19 @@ export class IndentSpy {
     }
 
     _clearDecorators() {
-        if(!this._indicatorStyle) {
-            return;
+        if(this._outerConf.style) {
+            for(let i = 0; i < window.visibleTextEditors.length; i++) {
+                window.visibleTextEditors[i].setDecorations(
+                    this._outerConf.style, []);
+            }
+
         }
+        if(this._innerConf.style) {
         for(let i = 0; i < window.visibleTextEditors.length; i++) {
-            window.visibleTextEditors[i].setDecorations(this._indicatorStyle,
-                                                        []);
+                window.visibleTextEditors[i].setDecorations(
+                    this._innerConf.style, []);
+            }
+
         }
     }
 
@@ -344,51 +421,88 @@ export class IndentSpy {
     }
 
     _getActiveIndentRanges(document: TextDocument, selection: Selection,
-                           selectedIndent: number, tabSize: number) {
-        if(selectedIndent == 0) {
-            return [];
-        }
-        let selectedIndentPos = (selectedIndent - 1) * tabSize;
+                           selectedIndent: number, tabSize: number){
+        // if(selectedIndent == 0) {
+        //     return  {outer: [], inner: []}
+        // }
         let activeRanges = [];
-        let firstLine = selection.start.line;
-        this._lastLine = selection.start.line;
-        // add ranges for selected block
-        for(let i = selection.start.line; i <= selection.end.line; i++) {
-            this._rangeAtThisLineMaker = this._createIndicatorRange(i, selectedIndentPos);
-            activeRanges.push(this._rangeAtThisLineMaker);
-        }
-        // add ranges for preceeding lines on same indent
-        for(let i = selection.start.line-1; i >= 0; i--) {
-            let line = document.lineAt(i);
-            let lineIndent = this._getLinesIndentDepth(line, tabSize);
-            if(lineIndent >= selectedIndent || (line.isEmptyOrWhitespace && selectedIndent == 1)) {
-                activeRanges.push(this._createIndicatorRange(i, selectedIndentPos));
-            } else if(!line.isEmptyOrWhitespace) {
+        let activeInnerRanges = [];
+        let line;
+        let innerDeactivated;
 
-                this._firstLine = i;
+        this._outerConf.firstLine = selection.start.line;
+        this._outerConf.lastLine = selection.end.line;
+        this._outerConf.indentPos = (selectedIndent - 1) * tabSize;
+
+        this._innerConf.firstLine = selection.start.line;
+        this._innerConf.lastLine = selection.end.line;
+        this._innerConf.indentPos = selectedIndent * tabSize;
+
+        let addRanges = (i, line) => {
+            let lineAdded = false;
+            let innerAdded = false;
+            let lineIndent = this._getLinesIndentDepth(line, tabSize);
+            if(this._innerConf.show && !innerDeactivated && lineIndent > selectedIndent) {
+                activeInnerRanges.push(
+                    this._createIndicatorRange(i, this._innerConf.indentPos));
+                lineAdded = true;
+                innerAdded = true;
+        }
+            if(this._outerConf.show && this._outerConf.indentPos >= 0 && (
+                    lineIndent >= selectedIndent || (
+                        line.isEmptyOrWhitespace && selectedIndent == 1))) {
+                activeRanges.push(this._createIndicatorRange(i, this._outerConf.indentPos));
+                lineAdded = true;
+        }
+            return {
+                'lineAdded': lineAdded,
+                'innerAdded': innerAdded
+            };
+        };
+
+        // add ranges for preceeding lines on same indent
+        innerDeactivated = false;
+        for(let i = selection.start.line; i >= 0; i--) {
+            line = document.lineAt(i);
+            let result = addRanges(i, line)
+            if(!result.innerAdded && !innerDeactivated) {
+                innerDeactivated = true;
+                this._innerConf.firstLine = i;
+            }
+            if(!result.lineAdded && !line.isEmptyOrWhitespace) {
+                this._outerConf.firstLine = i;
                 break;
             }
         }
         // add ranges for following lines on same indent
-        for(let i = selection.end.line+1; i < document.lineCount; i++) {
-            let line = document.lineAt(i);
-            let lineIndent = this._getLinesIndentDepth(line, tabSize);
-            if(lineIndent >= selectedIndent || (line.isEmptyOrWhitespace && selectedIndent == 1)) {
-                activeRanges.push(this._createIndicatorRange(i, selectedIndentPos));
-            } else if(!line.isEmptyOrWhitespace) {
-                this._lastLine = i;
+        innerDeactivated = false;
+        for(let i = selection.start.line + 1; i < document.lineCount; i++) {
+            line = document.lineAt(i);
+            let result = addRanges(i, line)
+            if(!result.innerAdded && !innerDeactivated) {
+                innerDeactivated = true;
+                this._innerConf.lastLine = i;
+            }
+            if(!result.lineAdded && !line.isEmptyOrWhitespace) {
+                this._outerConf.lastLine = i;
                 break;
             }
         }
-        return activeRanges;
+        return {
+            outer: activeRanges,
+            inner: activeInnerRanges
+        };
     }
 
     dispose() {
         if(this._statusBarItem){
             this._statusBarItem.dispose();
         }
-        if (this._hoverProvider) {
-            this._hoverProvider.dispose();
+        if(this._outerConf.hoverProvider) {
+            this._outerConf.hoverProvider.dispose();
+        }
+        if (this._innerConf.hoverProvider) {
+            this._innerConf.hoverProvider.dispose();
         }
     }
 }
