@@ -97,7 +97,7 @@ export class IndentSpy {
         }
         let myConf = new LanguageConfig(langConfig, config);
 
-        if(myConf.get('showCurrentDepthInStatusBar', true)) {
+        if(myConf.get('showCurrentDepthInStatusBar')) {
             if(!this._statusBarItem) {
                 this._statusBarItem = window.createStatusBarItem(
                     StatusBarAlignment.Right, 100);
@@ -107,10 +107,10 @@ export class IndentSpy {
             this._statusBarItem = undefined;
         }
 
-        this._outerConf.show = myConf.get('showHighlight', true);
-        this._innerConf.show = myConf.get('inner.showHighlight', false);
+        this._outerConf.show = myConf.get('showHighlight');
+        this._innerConf.show = myConf.get('inner.showHighlight');
 
-        let styling = {
+        this._outerConf.style = window.createTextEditorDecorationType({
             dark: {
                 borderColor: myConf.get('color.dark', '#888'),
                 borderStyle: myConf.get('style', 'solid'),
@@ -121,26 +121,18 @@ export class IndentSpy {
                 borderStyle: myConf.get('style', 'solid'),
                 borderWidth: myConf.get('width', 1) + "px"
             }
-        };
-
-        this._outerConf.style = window.createTextEditorDecorationType(styling);
+        });
 
         this._innerConf.style = window.createTextEditorDecorationType({
             dark: {
-                borderColor: myConf.get(
-                    'inner.color.dark', styling.dark.borderColor),
-                borderStyle: myConf.get(
-                    'inner.style', styling.dark.borderStyle),
-                borderWidth: myConf.get(
-                    'inner.width', Number.parseInt(styling.dark.borderWidth)) + "px"
+                borderColor: myConf.get('inner.color.dark', '#888'),
+                borderStyle: myConf.get('inner.style', 'solid'),
+                borderWidth: myConf.get('inner.width', 1) + "px"
             },
             light: {
-                borderColor: myConf.get(
-                    'inner.color.light', styling.light.borderColor),
-                borderStyle: myConf.get(
-                    'inner.style', styling.light.borderStyle),
-                borderWidth: myConf.get(
-                    'inner.width', Number.parseInt(styling.light.borderWidth)) + "px"
+                borderColor: myConf.get('inner.color.light', '#999'),
+                borderStyle: myConf.get('inner.style', 'solid'),
+                borderWidth: myConf.get('inner.width', 1) + "px"
             }
         });
 
@@ -163,7 +155,7 @@ export class IndentSpy {
             this._outerConf.hoverProvider.dispose();
         }
 
-        showHover = myConf.get('inner.showHover', this._outerConf.hover);
+        showHover = myConf.get('inner.showHover', false);
         if(typeof showHover === 'boolean') {
             this._innerConf.hover = showHover ? 1 : 0;
         } else {
@@ -171,18 +163,12 @@ export class IndentSpy {
         }
         if(this._innerConf.hover) {
             this._innerConf.hoverConf = {
-                peekBack: myConf.get(
-                    'inner.hover.peekBack',
-                    this._outerConf.hoverConf.peekBack),
-                peekForward: myConf.get(
-                    'inner.hover.peekForward',
-                    this._outerConf.hoverConf.peekForward),
+                peekBack: myConf.get('inner.hover.peekBack', 1),
+                peekForward: myConf.get('inner.hover.peekForward', 0),
                 trimLinesShorterThan: myConf.get(
-                    'inner.hover.trimLinesShorterThan',
-                    this._outerConf.hoverConf.trimLinesShorterThan),
+                    'inner.hover.trimLinesShorterThan', 2),
                 peekBlockPlaceholder: myConf.get(
-                    'inner.hover.peekBlockPlaceholder',
-                    this._outerConf.hoverConf.peekBlockPlaceholder)
+                    'inner.hover.peekBlockPlaceholder', '...')
             };
         } else if (this._innerConf.hoverProvider) {
             this._innerConf.hoverProvider.dispose();
@@ -427,12 +413,9 @@ export class IndentSpy {
 
     _getActiveIndentRanges(document: TextDocument, selection: Selection,
                            selectedIndent: number, tabSize: number){
-        // if(selectedIndent == 0) {
-        //     return  {outer: [], inner: []}
-        // }
         let activeRanges = [];
         let activeInnerRanges = [];
-        let line;
+        let line: TextLine;
         let innerDeactivated;
 
         this._outerConf.firstLine = selection.start.line;
@@ -443,11 +426,14 @@ export class IndentSpy {
         this._innerConf.lastLine = selection.end.line;
         this._innerConf.indentPos = selectedIndent * tabSize;
 
-        let addRanges = (i, line) => {
+        let addRanges = (i: number, line: TextLine) => {
             let lineAdded = false;
             let innerAdded = false;
             let lineIndent = this._getLinesIndentDepth(line, tabSize);
-            if(this._innerConf.show && !innerDeactivated && lineIndent > selectedIndent) {
+            if(this._innerConf.show && !innerDeactivated && (
+                    lineIndent > selectedIndent || (
+                        line.isEmptyOrWhitespace && selectedIndent === lineIndent &&
+                        (i !== selection.end.line || selection.end.character !== this._innerConf.indentPos)))) {
                 activeInnerRanges.push(
                     this._createIndicatorRange(i, this._innerConf.indentPos));
                 lineAdded = true;
@@ -455,7 +441,7 @@ export class IndentSpy {
         }
             if(this._outerConf.show && this._outerConf.indentPos >= 0 && (
                     lineIndent >= selectedIndent || (
-                        line.isEmptyOrWhitespace && selectedIndent == 1))) {
+                        line.isEmptyOrWhitespace && selectedIndent === 1))) {
                 activeRanges.push(this._createIndicatorRange(i, this._outerConf.indentPos));
                 lineAdded = true;
         }
@@ -470,7 +456,7 @@ export class IndentSpy {
         for(let i = selection.start.line; i >= 0; i--) {
             line = document.lineAt(i);
             let result = addRanges(i, line)
-            if(!result.innerAdded && !innerDeactivated) {
+            if(!result.innerAdded && !line.isEmptyOrWhitespace && !innerDeactivated) {
                 innerDeactivated = true;
                 this._innerConf.firstLine = i;
             }
@@ -484,7 +470,7 @@ export class IndentSpy {
         for(let i = selection.start.line + 1; i < document.lineCount; i++) {
             line = document.lineAt(i);
             let result = addRanges(i, line)
-            if(!result.innerAdded && !innerDeactivated) {
+            if(!result.innerAdded && !line.isEmptyOrWhitespace && !innerDeactivated) {
                 innerDeactivated = true;
                 this._innerConf.lastLine = i;
             }
