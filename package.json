@@ -176,7 +176,7 @@
           "description": "A construct with language identifiers as properties containing a subset of indenticator options to be applied to that language",
           "additionalProperties": false,
           "patternProperties": {
-            "^\\[.+\\]$": {
+            "^\\[(\\w+,?\\s*)+\\]$": {
               "type": ["object"],
               "description": "Language Specific config",
               "additionalProperties": false,

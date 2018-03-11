@@ -88,7 +88,12 @@ export class IndentSpy {
         if(window.activeTextEditor) {
             let docLang = window.activeTextEditor.document.languageId
             let allLangConfig = config.get("languageSpecific", {});
-            langConfig = allLangConfig[`[${docLang}]`] || {};
+            let docLangKey = Object.keys(allLangConfig).find(k => {
+                return k.match(`^\\[(.*,\\s*)?${docLang}(,.*)?\\]$`) !== null;
+            });
+            if(docLangKey) {
+                langConfig = allLangConfig[docLangKey] || {};
+            }
         }
         let myConf = new LanguageConfig(langConfig, config);
 
