@@ -235,6 +235,7 @@ suite("Extension Tests", () => {
                     "() => {\n" +
                     "  if(foo()) {\n" +
                     "    bar();\n" +
+                    "    bar();\n" +
                     "    return;\n" +
                     "  } else {\n" +
                     "    foo();\n" +
@@ -244,9 +245,12 @@ suite("Extension Tests", () => {
             });
 
             test("returns a set of ranges for all lines enclosing the" +
-                 " selection with the same or higher indent as outer",
+                 " selection with the same or higher indent as outer" +
+                 " and following line higher indent as inner" +
+                 " and updates configs first/last line and indentPos",
                  () => {
-                    let selection = new vscode.Selection(4, 9, 4, 9);
+                    IndentSpy._innerConf.show = true;
+                    let selection = new vscode.Selection(5, 9, 5, 9);
                     let selectedIndent = 1;
                     let result = IndentSpy._getActiveIndentRanges(
                         document, selection, selectedIndent, tabSize);
@@ -258,12 +262,29 @@ suite("Extension Tests", () => {
                         IndentSpy._createIndicatorRange(4, 0),
                         IndentSpy._createIndicatorRange(5, 0),
                         IndentSpy._createIndicatorRange(6, 0),
-                    ]
-                    assert.equal(result.outer.length, expectedRanges.length);
+                        IndentSpy._createIndicatorRange(7, 0),
+                    ];
+                    let expectedInnerRanges = [
+                        IndentSpy._createIndicatorRange(6, tabSize),
+                    ];
 
+                    assert.equal(IndentSpy._innerConf.firstLine, 5);
+                    assert.equal(IndentSpy._innerConf.lastLine, 7);
+                    assert.equal(IndentSpy._innerConf.indentPos, tabSize);
+
+                    assert.equal(IndentSpy._outerConf.firstLine, 0);
+                    assert.equal(IndentSpy._outerConf.lastLine, 8);
+                    assert.equal(IndentSpy._outerConf.indentPos, 0);
+
+                    assert.equal(result.outer.length, expectedRanges.length);
+                    assert.equal(result.inner.length, expectedInnerRanges.length);
                     for(let i = 0; i < expectedRanges.length; i++) {
                         assert(result.outer.find(findRangePredicate(expectedRanges[i])),
                                `(${expectedRanges[i].start.line}, ${expectedRanges[i].start.character})`);
+                    }
+                    for(let i = 0; i < expectedInnerRanges.length; i++) {
+                        assert(result.inner.find(findRangePredicate(expectedInnerRanges[i])),
+                               `(${expectedInnerRanges[i].start.line}, ${expectedInnerRanges[i].start.character})`);
                     }
                 }
             );
@@ -272,6 +293,7 @@ suite("Extension Tests", () => {
                  " selection with the same or higher indent stopping at lower" +
                  " indets as outer",
                  () => {
+                    IndentSpy._innerConf.show = true;
                     let selection = new vscode.Selection(3, 6, 3, 6);
                     let selectedIndent = 2;
                     let result = IndentSpy._getActiveIndentRanges(
@@ -280,13 +302,147 @@ suite("Extension Tests", () => {
                     let expectedRanges = [
                         IndentSpy._createIndicatorRange(2, tabSize),
                         IndentSpy._createIndicatorRange(3, tabSize),
-                    ]
+                        IndentSpy._createIndicatorRange(4, tabSize),
+                    ];
+
+                    assert.equal(IndentSpy._outerConf.firstLine, 1);
+                    assert.equal(IndentSpy._outerConf.lastLine, 5);
+                    assert.equal(IndentSpy._outerConf.indentPos, 2);
+
                     assert.equal(result.outer.length, expectedRanges.length);
+                    assert.equal(result.inner.length, 0);
 
                     for(let i = 0; i < expectedRanges.length; i++) {
                         assert(result.outer.find(findRangePredicate(expectedRanges[i])),
                                `(${expectedRanges[i].start.line}, ${expectedRanges[i].start.character}) not in generated ranges`);
                     }
+                }
+            );
+
+            test("returns a set of ranges for all lines enclosing the" +
+                 " selection with the same or higher indent as outer" +
+                 " and the same ident as inner stopping on lower indent",
+                 () => {
+                    IndentSpy._innerConf.show = true;
+                    let selection = new vscode.Selection(3, 2, 3, 2);
+                    let selectedIndent = 1;
+                    let result = IndentSpy._getActiveIndentRanges(
+                        document, selection, selectedIndent, tabSize);
+
+                    let expectedRanges = [
+                        IndentSpy._createIndicatorRange(1, 0),
+                        IndentSpy._createIndicatorRange(2, 0),
+                        IndentSpy._createIndicatorRange(3, 0),
+                        IndentSpy._createIndicatorRange(4, 0),
+                        IndentSpy._createIndicatorRange(5, 0),
+                        IndentSpy._createIndicatorRange(6, 0),
+                        IndentSpy._createIndicatorRange(7, 0)
+                    ];
+                    let expectedInnerRanges = [
+                        IndentSpy._createIndicatorRange(2, tabSize),
+                        IndentSpy._createIndicatorRange(3, tabSize),
+                        IndentSpy._createIndicatorRange(4, tabSize),
+                    ];
+
+                    assert.equal(IndentSpy._innerConf.firstLine, 1);
+                    assert.equal(IndentSpy._innerConf.lastLine, 5);
+                    assert.equal(IndentSpy._innerConf.indentPos, tabSize);
+
+                    assert.equal(IndentSpy._outerConf.firstLine, 0);
+                    assert.equal(IndentSpy._outerConf.lastLine, 8);
+                    assert.equal(IndentSpy._outerConf.indentPos, 0);
+
+                    assert.equal(result.outer.length, expectedRanges.length);
+                    assert.equal(result.inner.length, expectedInnerRanges.length);
+                    for(let i = 0; i < expectedRanges.length; i++) {
+                        assert(result.outer.find(findRangePredicate(expectedRanges[i])),
+                               `(${expectedRanges[i].start.line}, ${expectedRanges[i].start.character})`);
+                    }
+                    for(let i = 0; i < expectedInnerRanges.length; i++) {
+                        assert(result.inner.find(findRangePredicate(expectedInnerRanges[i])),
+                               `(${expectedInnerRanges[i].start.line}, ${expectedInnerRanges[i].start.character})`);
+                    }
+                }
+            );
+
+            test("does not return a set of ranges for inner if disabled" +
+                 " but still returns the outer",
+                 () => {
+                    IndentSpy._innerConf.show = false;
+                    IndentSpy._outerConf.show = true;
+                    let selection = new vscode.Selection(3, 2, 3, 2);
+                    let selectedIndent = 1;
+                    let result = IndentSpy._getActiveIndentRanges(
+                        document, selection, selectedIndent, tabSize);
+
+                    let expectedRanges = [
+                        IndentSpy._createIndicatorRange(1, 0),
+                        IndentSpy._createIndicatorRange(2, 0),
+                        IndentSpy._createIndicatorRange(3, 0),
+                        IndentSpy._createIndicatorRange(4, 0),
+                        IndentSpy._createIndicatorRange(5, 0),
+                        IndentSpy._createIndicatorRange(6, 0),
+                        IndentSpy._createIndicatorRange(7, 0)
+                    ];
+                    let expectedInnerRanges = [];
+
+                    assert.equal(IndentSpy._outerConf.firstLine, 0);
+                    assert.equal(IndentSpy._outerConf.lastLine, 8);
+                    assert.equal(IndentSpy._outerConf.indentPos, 0);
+
+                    assert.equal(result.outer.length, expectedRanges.length);
+                    assert.equal(result.inner.length, expectedInnerRanges.length);
+                    for(let i = 0; i < expectedRanges.length; i++) {
+                        assert(result.outer.find(findRangePredicate(expectedRanges[i])),
+                               `(${expectedRanges[i].start.line}, ${expectedRanges[i].start.character})`);
+                    }
+                }
+            );
+
+            test("does not return a set of ranges for outer if disabled" +
+                 " but still returns the inner",
+                 () => {
+                    IndentSpy._innerConf.show = true;
+                    IndentSpy._outerConf.show = false;
+                    let selection = new vscode.Selection(3, 2, 3, 2);
+                    let selectedIndent = 1;
+                    let result = IndentSpy._getActiveIndentRanges(
+                        document, selection, selectedIndent, tabSize);
+
+                    let expectedRanges = [];
+                    let expectedInnerRanges = [
+                        IndentSpy._createIndicatorRange(2, tabSize),
+                        IndentSpy._createIndicatorRange(3, tabSize),
+                        IndentSpy._createIndicatorRange(4, tabSize),
+                    ];
+
+                    assert.equal(IndentSpy._innerConf.firstLine, 1);
+                    assert.equal(IndentSpy._innerConf.lastLine, 5);
+                    assert.equal(IndentSpy._innerConf.indentPos, tabSize);
+
+                    assert.equal(result.outer.length, expectedRanges.length);
+                    assert.equal(result.inner.length, expectedInnerRanges.length);
+                    for(let i = 0; i < expectedInnerRanges.length; i++) {
+                        assert(result.inner.find(findRangePredicate(expectedInnerRanges[i])),
+                                `(${expectedInnerRanges[i].start.line}, ${expectedInnerRanges[i].start.character})`);
+                    }
+                }
+            );
+
+            test("does not return any  ranges if both disabled",
+                 () => {
+                    IndentSpy._innerConf.show = false;
+                    IndentSpy._outerConf.show = false;
+                    let selection = new vscode.Selection(3, 2, 3, 2);
+                    let selectedIndent = 1;
+                    let result = IndentSpy._getActiveIndentRanges(
+                        document, selection, selectedIndent, tabSize);
+
+                    let expectedRanges = [];
+                    let expectedInnerRanges = [];
+
+                    assert.equal(result.outer.length, expectedRanges.length);
+                    assert.equal(result.inner.length, expectedInnerRanges.length);
                 }
             );
         });
