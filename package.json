@@ -2,7 +2,7 @@
   "name": "indenticator",
   "displayName": "Indenticator",
   "description": "Highlights your current indent depth",
-  "version": "0.4.2",
+  "version": "0.5.0",
   "publisher": "SirTori",
   "homepage": "https://github.com/SirTori/indenticator/blob/master/README.md",
   "license": "SEE LICENSE IN LICENSE.txt",
@@ -97,23 +97,22 @@
         },
         "indenticator.inner.color.dark": {
           "type": "string",
-          "default": "#888",
-          "description": "Color of the indent marker for dark themes"
+          "description": "Color of the inner indent marker for dark themes"
         },
         "indenticator.inner.color.light": {
           "type": "string",
           "default": "#999",
-          "description": "Color of the indent marker for light themes"
+          "description": "Color of the inner indent marker for light themes"
         },
         "indenticator.inner.width": {
           "type": "number",
           "default": 1,
-          "description": "Width of the indent marker in pixels"
+          "description": "Width of the inner indent marker in pixels"
         },
         "indenticator.inner.style": {
           "type": "string",
           "default": "solid",
-          "description": "Line style of the indent marker"
+          "description": "Line style of the inner indent marker"
         },
         "indenticator.showCurrentDepthInStatusBar": {
           "type": "boolean",
