@@ -51,7 +51,7 @@ Can be used by itself, but it's recommended to use it alongside the builtin inde
     /******************************************************/
     /********** Standard Indent Highlight Config **********/
     /******************************************************/
-    /* Wether to highlight the indent of the block enclosing the current line */
+    /* Whether to highlight the indent of the block enclosing the current line */
     "indenticator.showHighlight": true
     /* Color of the indent marker for dark themes */
     "indenticator.color.dark": "#888",
@@ -61,7 +61,7 @@ Can be used by itself, but it's recommended to use it alongside the builtin inde
     "indenticator.width": 1,
     /* Line style of the indent marker (e.g. "solid", "dashed", "dotted", ...) */
     "indenticator.style": "solid",
-    /* Wether to display the hover near the indent line */
+    /* Whether to display the hover near the indent line */
     "indenticator.showHover": false,
     /* Lines before the current indent to be shown on hover */
     "indenticator.hover.peekBack": 1,
@@ -75,7 +75,7 @@ Can be used by itself, but it's recommended to use it alongside the builtin inde
     /***************************************************/
     /********** Inner Indent Highlight Config **********/
     /***************************************************/
-    /* Wether to highlight the indent of the block enclosed by the current line */
+    /* Whether to highlight the indent of the block enclosed by the current line */
     "indenticator.inner.showHighlight": false
     /* Color of the indent marker for dark themes */
     "indenticator.inner.color.dark": "#888",
@@ -85,7 +85,7 @@ Can be used by itself, but it's recommended to use it alongside the builtin inde
     "indenticator.inner.width": 1,
     /* Line style of the indent marker (e.g. "solid", "dashed", "dotted", ...) */
     "indenticator.inner.style": "solid",
-    /* Wether to display the hover near the inner indent line */
+    /* Whether to display the hover near the inner indent line */
     "indenticator.inner.showHover": false,
     /* Lines before the current inner indent to be shown on hover */
     "indenticator.inner.hover.peekBack": 1,
@@ -95,7 +95,7 @@ Can be used by itself, but it's recommended to use it alongside the builtin inde
     "indenticator.inner.hover.trimLinesShorterThan": 2,
     /* Block placeholder to be written between peeked lines */
     "indenticator.inner.hover.peekBlockPlaceholder": "...",
-    /* Wether to displays the current indent depth on the statusbar */
+    /* Whether to display the current indent depth on the statusbar */
 
     /********************************************/
     /********** Further Configurations **********/
