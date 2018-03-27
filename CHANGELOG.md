@@ -1,3 +1,9 @@
+# 0.5.1
+
+## Path
+
+- Fixed some typos
+
 # 0.5.0
 
 ## Minor

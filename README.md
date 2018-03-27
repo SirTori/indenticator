@@ -4,7 +4,7 @@
 
 Visually highlights the current indent depth.
 
-Can be used by itself, but it's recommended to use it alongside the builtin indent guides.
+This extension can be used by itself, but it's recommended to use it alongside the builtin indent guides.
 
 | ![Indenticator demonstration](img/demo.gif) |
 |- |
@@ -14,14 +14,14 @@ Can be used by itself, but it's recommended to use it alongside the builtin inde
 ## Feature Highlights
 
 - **Peeking around the current indent block**: *Optionally* a hover can be added on the current indent marker to peek before and/or after the current indent block.<br/>
-*To activate set **indenticator.showHover** to `true` to activate*
+*To activate set **indenticator.showHover** to `true`*
 
   | ![Indenticator demonstration](img/r0.5.0/example_highlight.png) |
   |- |
   | *Example has **indenticator.inner.color.dark** set to `#ff0000`*  |
 
 - **Highlighting the the indent guide for the contained block**: *Optionally* a second indent highlight can be configured to highlight the block contained by the current cursor position<br/>
-*To activate s **indenticator.inner.showHighlight** to `true` to activate*
+*To activate set **indenticator.inner.showHighlight** to `true`*
 
   | ![Indenticator demonstration](img/r0.5.0/example_inner.png) |
   |- |
@@ -43,7 +43,7 @@ Can be used by itself, but it's recommended to use it alongside the builtin inde
     }
     ```
 
-- **Highlight Styling**: All highlighting can be styled individually by defining color, width and border style.
+- **Highlight Styling**: All indent highlighting can be styled individually by defining color, width and border style.
 
 ## Settings and defaults
 ``` JS
@@ -101,13 +101,13 @@ Can be used by itself, but it's recommended to use it alongside the builtin inde
     /********** Further Configurations **********/
     /********************************************/
     "indenticator.showCurrentDepthInStatusBar": true,
-    /* A construct with language identifiers as properties containing a subset of indenticator options to be applied to that language */
+    /* A construct with language identifiers as properties containing a subset of indenticator options to be applied for that language */
     "indenticator.languageSpecific": {}
 }
 ```
 ### Remarks
 
-- **indenticator.languageSpecific**: The language identifier can be viewed by using [VS Codes language selection](https://code.visualstudio.com/docs/languages/overview#_language-id) in the statusbar. To be analogous to [language specific editor options](https://code.visualstudio.com/docs/getstarted/settings#_language-specific-editor-settings) of VS Code the key has to be put between square brackets. But to simplify configuration of similar languages multiple keys can be listed within the square brackets as a comma seperated list.
+- **indenticator.languageSpecific**: The language identifiers can be viewed by using [VS Codes language selection](https://code.visualstudio.com/docs/languages/overview#_language-id) in the statusbar. To be analogous to [language specific editor options](https://code.visualstudio.com/docs/getstarted/settings#_language-specific-editor-settings) of VS Code the key has to be put between square brackets. But to simplify configuration of similar languages multiple keys can be listed within the square brackets as a comma seperated list.
 
   Any setting for indenticator that can be set normally, can also be set for the language specific configuration. If any setting is not set for the specific language the overall configuration will be used.
 

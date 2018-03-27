@@ -2,7 +2,7 @@
   "name": "indenticator",
   "displayName": "Indenticator",
   "description": "Highlights your current indent depth",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "publisher": "SirTori",
   "homepage": "https://github.com/SirTori/indenticator/blob/master/README.md",
   "license": "SEE LICENSE IN LICENSE.txt",
@@ -68,7 +68,7 @@
         "indenticator.showHighlight": {
           "type": "boolean",
           "default": true,
-          "description": "Wether to highlight the indent of the block enclosing the current line"
+          "description": "Whether to highlight the indent of the block enclosing the current line"
         },
         "indenticator.color.dark": {
           "type": "string",
@@ -93,7 +93,7 @@
         "indenticator.inner.showHighlight": {
           "type": "boolean",
           "default": false,
-          "description": "Wether to highlight the indent of the block enclosed by the current line"
+          "description": "Whether to highlight the indent of the block enclosed by the current line"
         },
         "indenticator.inner.color.dark": {
           "type": "string",
@@ -117,12 +117,12 @@
         "indenticator.showCurrentDepthInStatusBar": {
           "type": "boolean",
           "default": true,
-          "description": "Wether to display the current indent depth on the statusbar"
+          "description": "Whether to display the current indent depth on the statusbar"
         },
         "indenticator.showHover": {
           "type": ["boolean", "number"],
           "default": false,
-          "description": "Wether to display the hover near the indent line, or minimum number of lines in current indent block to activate the hover."
+          "description": "Whether to display the hover near the indent line, or minimum number of lines in current indent block to activate the hover."
         },
         "indenticator.hover.peekBack": {
           "type": "number",
@@ -147,7 +147,7 @@
         "indenticator.inner.showHover": {
           "type": ["boolean", "number"],
           "default": false,
-          "description": "Wether to display the hover near the inner indent line, or minimum number of lines in current indent block to activate the hover."
+          "description": "Whether to display the hover near the inner indent line, or minimum number of lines in current indent block to activate the hover."
         },
         "indenticator.inner.hover.peekBack": {
           "type": "number",
@@ -183,7 +183,7 @@
                 "indenticator.showHighlight": {
                   "type": "boolean",
                   "default": true,
-                  "description": "Wether to highlight the indent of the block enclosing the current line"
+                  "description": "Whether to highlight the indent of the block enclosing the current line"
                 },
                 "indenticator.color.dark": {
                   "type": "string",
@@ -208,7 +208,7 @@
                 "indenticator.inner.showHighlight": {
                   "type": "boolean",
                   "default": false,
-                  "description": "Wether to highlight the indent of the block enclosed by the current line"
+                  "description": "Whether to highlight the indent of the block enclosed by the current line"
                 },
                 "indenticator.inner.color.dark": {
                   "type": "string",
@@ -233,12 +233,12 @@
                 "indenticator.showCurrentDepthInStatusBar": {
                   "type": "boolean",
                   "default": true,
-                  "description": "Wether to display the current indent depth on the statusbar"
+                  "description": "Whether to display the current indent depth on the statusbar"
                 },
                 "indenticator.showHover": {
                   "type": ["boolean", "number"],
                   "default": false,
-                  "description": "Wether to display the hover near the indent line, or minimum number of lines in current indent block to activate the hover."
+                  "description": "Whether to display the hover near the indent line, or minimum number of lines in current indent block to activate the hover."
                 },
                 "indenticator.hover.peekBack": {
                   "type": "number",
@@ -263,7 +263,7 @@
                 "indenticator.inner.showHover": {
                   "type": ["boolean", "number"],
                   "default": false,
-                  "description": "Wether to display the hover near the inner indent line, or minimum number of lines in current indent block to activate the hover."
+                  "description": "Whether to display the hover near the inner indent line, or minimum number of lines in current indent block to activate the hover."
                 },
                 "indenticator.inner.hover.peekBack": {
                   "type": "number",
