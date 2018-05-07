@@ -1,3 +1,14 @@
+# 0.6.0
+
+## Minor
+
+- Switched default border style from 'solid' to 'inset'
+  - With VS Code 1.23.0 there seems to have been a change in the rendering of solid borders that makes them appear thicker than before. To offset that change the default style is now inset which should make the default borders somewhat slimmer again.
+- Updated README to reflect recent changes with new buildin active indent guide of VS Code
+
+## Patch
+- additional checks before fetching lines from document to fix #20
+
 # 0.5.1
 
 ## Path
