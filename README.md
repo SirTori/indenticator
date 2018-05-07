@@ -118,14 +118,15 @@ With Version 1.23.0 VS Code introduced a new builtin active indent guide. For an
     | *yellow* is the new builtin active indent guide<br/>*red* is the inner active indent guide of this extension<br/>*grey* is the default active guide indent of this extension |
 
   - The buildin active indent guide will always be enabled if the builtin indent guides are enabled (`"editor.renderIndentGuides": true`)
-  - If you don't want the new active indent guide but still want to use the old indent guides you can assign them the same color as a workaround. That way the active indent guide won't be distinguishable from the the normal builtin indent guides.
-  Example:
-  ``` JS
-  "workbench.colorCustomizations": {
-    "editorIndentGuide.activeBackground": "#ffffff22",
-    "editorIndentGuide.background": "#ffffff22",
-  }
-  ```
+  - If you don't want the new active indent guide but still want to use the old indent guides you can assign the same color to both of them as a workaround. That way the active indent guide won't be distinguishable from the the normal builtin indent guides.
+
+    Example:
+    ``` JS
+    "workbench.colorCustomizations": {
+      "editorIndentGuide.activeBackground": "#ffffff22",
+      "editorIndentGuide.background": "#ffffff22",
+    }
+    ```
 
 - **indenticator.languageSpecific**: The language identifiers can be viewed by using [VS Codes language selection](https://code.visualstudio.com/docs/languages/overview#_language-id) in the statusbar. To be analogous to [language specific editor options](https://code.visualstudio.com/docs/getstarted/settings#_language-specific-editor-settings) of VS Code the key has to be put between square brackets. But to simplify configuration of similar languages multiple keys can be listed within the square brackets as a comma seperated list.
 
