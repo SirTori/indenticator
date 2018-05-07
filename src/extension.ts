@@ -393,14 +393,16 @@ export class IndentSpy {
     _getSelectedIndentDepth(document: TextDocument, selection: Selection,
                             tabSize: number) {
         if(selection.isSingleLine) {
-            let line = document.lineAt(selection.start.line);
+            let maxlineNum = document.lineCount - 1;
+            let line = document.lineAt(Math.min(selection.start.line, maxlineNum));
             return this._getIndentDepth(
                 Math.min(selection.start.character,
                          line.firstNonWhitespaceCharacterIndex),
                 tabSize);
         }
         let selectedIndent = Number.MAX_VALUE;
-        for(let i = selection.start.line; i <= selection.end.line; i++) {
+        let maxlineNum = Math.min(selection.end.line,document.lineCount - 1);
+        for(let i = selection.start.line; i <= maxlineNum; i++) {
             let line = document.lineAt(i);
             if(line.isEmptyOrWhitespace) {
                 continue;
