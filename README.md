@@ -113,7 +113,7 @@ With Version 1.23.0 VS Code introduced a new builtin active indent guide. For an
 - **New Builtin active indent guide (VS Code 1.23.0)**
   - Their approach always highlights the highest indent on the currently selected line while this extensions highlights the indent depth the cursor is currently at. The difference can be seen in the following image:
 
-    | ![Indenticator demonstration](img/r0.6.0/new_indent.png) |
+    | ![Indenticator demonstration](img/r0.6.0/new_active_indent.png) |
     |- |
     | *yellow* is the new builtin active indent guide<br/>*red* is the inner active indent guide of this extension<br/>*grey* is the default active guide indent of this extension |
 
