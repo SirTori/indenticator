@@ -7,7 +7,7 @@ Visually highlights the current indent depth.
 This extension can be used by itself, but it's recommended to use it alongside the builtin indent guides.
 
 **Changes in Visual Studio Code 1.23.0**:<br/>
-With Version 1.23.0 VS Code introduced a new builtin active indent guide. For an explanation of differences and tips regarding the new feature and this extension please see [remarks section](#Remarks)
+With Version 1.23.0 VS Code introduced a new builtin active indent guide. For an explanation of differences and tips regarding the new feature and this extension please see [remarks section](#remarks)
 
 | ![Indenticator demonstration](img/demo.gif) |
 |- |
