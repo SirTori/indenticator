@@ -31,7 +31,7 @@
     "url": "https://github.com/SirTori/indenticator/issues"
   },
   "engines": {
-    "vscode": "^0.10.10"
+    "vscode": "^1.0.0"
   },
   "categories": [
     "Other"
@@ -87,7 +87,7 @@
         },
         "indenticator.style": {
           "type": "string",
-          "default": "solid",
+          "default": "inset",
           "description": "Line style of the indent marker"
         },
         "indenticator.inner.showHighlight": {
@@ -111,7 +111,7 @@
         },
         "indenticator.inner.style": {
           "type": "string",
-          "default": "solid",
+          "default": "inset",
           "description": "Line style of the inner indent marker"
         },
         "indenticator.showCurrentDepthInStatusBar": {
@@ -120,7 +120,10 @@
           "description": "Whether to display the current indent depth on the statusbar"
         },
         "indenticator.showHover": {
-          "type": ["boolean", "number"],
+          "type": [
+            "boolean",
+            "number"
+          ],
           "default": false,
           "description": "Whether to display the hover near the indent line, or minimum number of lines in current indent block to activate the hover."
         },
@@ -145,7 +148,10 @@
           "description": "Block placeholder to be written between peeked lines"
         },
         "indenticator.inner.showHover": {
-          "type": ["boolean", "number"],
+          "type": [
+            "boolean",
+            "number"
+          ],
           "default": false,
           "description": "Whether to display the hover near the inner indent line, or minimum number of lines in current indent block to activate the hover."
         },
@@ -170,13 +176,17 @@
           "description": "Block placeholder to be written between peeked lines for the hover of the inner indent"
         },
         "indenticator.languageSpecific": {
-          "type": ["object"],
+          "type": [
+            "object"
+          ],
           "default": {},
           "description": "A construct with language identifiers as properties containing a subset of indenticator options to be applied to that language",
           "additionalProperties": false,
           "patternProperties": {
             "^\\[(\\w+,?\\s*)+\\]$": {
-              "type": ["object"],
+              "type": [
+                "object"
+              ],
               "description": "Language Specific config",
               "additionalProperties": false,
               "properties": {
@@ -202,7 +212,7 @@
                 },
                 "indenticator.style": {
                   "type": "string",
-                  "default": "solid",
+                  "default": "inset",
                   "description": "Line style of the indent marker"
                 },
                 "indenticator.inner.showHighlight": {
@@ -227,7 +237,7 @@
                 },
                 "indenticator.inner.style": {
                   "type": "string",
-                  "default": "solid",
+                  "default": "inset",
                   "description": "Line style of the indent marker"
                 },
                 "indenticator.showCurrentDepthInStatusBar": {
@@ -236,7 +246,10 @@
                   "description": "Whether to display the current indent depth on the statusbar"
                 },
                 "indenticator.showHover": {
-                  "type": ["boolean", "number"],
+                  "type": [
+                    "boolean",
+                    "number"
+                  ],
                   "default": false,
                   "description": "Whether to display the hover near the indent line, or minimum number of lines in current indent block to activate the hover."
                 },
@@ -261,7 +274,10 @@
                   "description": "Block placeholder to be written between peeked lines"
                 },
                 "indenticator.inner.showHover": {
-                  "type": ["boolean", "number"],
+                  "type": [
+                    "boolean",
+                    "number"
+                  ],
                   "default": false,
                   "description": "Whether to display the hover near the inner indent line, or minimum number of lines in current indent block to activate the hover."
                 },

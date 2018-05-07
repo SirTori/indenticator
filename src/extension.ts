@@ -113,12 +113,12 @@ export class IndentSpy {
         this._outerConf.style = window.createTextEditorDecorationType({
             dark: {
                 borderColor: myConf.get('color.dark', '#888'),
-                borderStyle: myConf.get('style', 'solid'),
+                borderStyle: myConf.get('style', 'inset'),
                 borderWidth: myConf.get('width', 1) + "px"
             },
             light: {
                 borderColor: myConf.get('color.light', '#999'),
-                borderStyle: myConf.get('style', 'solid'),
+                borderStyle: myConf.get('style', 'inset'),
                 borderWidth: myConf.get('width', 1) + "px"
             }
         });
@@ -126,12 +126,12 @@ export class IndentSpy {
         this._innerConf.style = window.createTextEditorDecorationType({
             dark: {
                 borderColor: myConf.get('inner.color.dark', '#888'),
-                borderStyle: myConf.get('inner.style', 'solid'),
+                borderStyle: myConf.get('inner.style', 'inset'),
                 borderWidth: myConf.get('inner.width', 1) + "px"
             },
             light: {
                 borderColor: myConf.get('inner.color.light', '#999'),
-                borderStyle: myConf.get('inner.style', 'solid'),
+                borderStyle: myConf.get('inner.style', 'inset'),
                 borderWidth: myConf.get('inner.width', 1) + "px"
             }
         });
