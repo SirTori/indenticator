@@ -63,6 +63,8 @@ export class IndentSpy {
                  statusTooltip: `current indent depth: {indent}`},
             de: {statusText: `Einzüge: {indent}`,
                  statusTooltip: `aktuelle Einzugtiefe: {indent}`},
+            ja: {statusText: `字下げ: {indent}`,
+                 statusTooltip: `現在のインデントの深さ: {indent}`},
             default: {statusText: `Indents: {indent}`,
                       statusTooltip: `current indent depth: {indent}`},
         };
