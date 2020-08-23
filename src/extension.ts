@@ -299,7 +299,7 @@ export class IndentSpy {
     _peekBack(document: TextDocument, tabSize: number,
               refDepth: number, conf: IndentConfiguration): Array<string> {
         let backHoverLines = [];
-        if(conf.hoverConf.peekBack > 0) {
+        if(conf && conf.hoverConf && conf.hoverConf.peekBack > 0) {
             let firstPeekLine = Math.max(
                 conf.firstLine - (conf.hoverConf.peekBack - 1), 0);
             let pushedOnce = false;
@@ -325,7 +325,7 @@ export class IndentSpy {
     _peekForward(document: TextDocument, tabSize: number,
                  refDepth: number, conf: IndentConfiguration): Array<string> {
         let forwardHoverLines = [];
-        if(conf.hoverConf.peekForward > 0) {
+        if(conf && conf.hoverConf && conf.hoverConf.peekForward > 0) {
             let lastPeekLine = Math.min(
                 conf.lastLine + (conf.hoverConf.peekForward - 1),
                 document.lineCount - 1);
