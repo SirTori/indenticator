@@ -1,10 +1,10 @@
 'use strict';
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
-import {window, commands, Disposable, ExtensionContext, StatusBarAlignment,
+import {window, Disposable, ExtensionContext, StatusBarAlignment,
         StatusBarItem, TextDocument, TextEditor, TextEditorOptions,
         TextEditorDecorationType, TextLine, Selection, Range,
-        Position, workspace, env, languages, WorkspaceConfiguration
+        Position, workspace, env, languages, WorkspaceConfiguration, Hover
 } from 'vscode';
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -203,30 +203,24 @@ export class IndentSpy {
         }
 
         let tabSize = this._getTabSize(editor.options);
-        let selectedIndent = this._getSelectedIndentDepth(document,
-                                                          selection,
-                                                          tabSize);
-
-        if(this._outerConf.show || this._innerConf.show) {
-            let activeRanges = this._getActiveIndentRanges(document,
-                                                             selection,
-                                                             selectedIndent,
-                                                             tabSize)
+        let selectedIndent = this._getSelectedIndentDepth(document, selection, tabSize);
+        if(this._outerConf.show || this._outerConf.hover || this._innerConf.show || this._innerConf.hover) {
+            let activeRanges = this._getActiveIndentRanges(document, selection, selectedIndent, tabSize);
             if(this._outerConf.show) {
                 editor.setDecorations(this._outerConf.style, activeRanges.outer);
-                if(activeRanges.outer.length >= this._outerConf.hover) {
-                    this._buildHover(editor, tabSize, this._outerConf);
-                } else if(this._outerConf.hoverProvider) {
-                    this._outerConf.hoverProvider.dispose();
-        }
+            }
+            if(this._outerConf.hover && activeRanges.outer.length >= this._outerConf.hover) {
+                this._buildHover(editor, tabSize, this._outerConf);
+            } else if(this._outerConf.hoverProvider) {
+                this._outerConf.hoverProvider.dispose();
             }
             if(this._innerConf.show) {
                 editor.setDecorations(this._innerConf.style, activeRanges.inner);
-                if(activeRanges.inner.length >= this._innerConf.hover) {
-                    this._buildHover(editor, tabSize, this._innerConf);
-                } else if(this._innerConf.hoverProvider) {
-                    this._innerConf.hoverProvider.dispose();
-                }
+            }
+            if(this._innerConf.hover && activeRanges.inner.length >= this._innerConf.hover) {
+                this._buildHover(editor, tabSize, this._innerConf);
+            } else if(this._innerConf.hoverProvider) {
+                this._innerConf.hoverProvider.dispose();
             }
         }
 
@@ -254,10 +248,10 @@ export class IndentSpy {
     }
 
     _buildHoverprovider(position: Position, editor: TextEditor,
-                        tabSize: number, conf: IndentConfiguration) {
+                        tabSize: number, conf: IndentConfiguration): Hover {
         let char = conf.indentPos
-        if(position.character > char -2
-           && position.character < char +2
+        if(position.character > char - 1
+           && position.character < char + 1
            && position.line >= conf.firstLine
            && position.line <= conf.lastLine) {
             let str = this._buildHoverString(editor, tabSize, conf);
@@ -418,7 +412,7 @@ export class IndentSpy {
         let activeRanges = [];
         let activeInnerRanges = [];
         let line: TextLine;
-        let innerDeactivated;
+        let innerDeactivated: boolean;
 
         this._outerConf.firstLine = selection.start.line;
         this._outerConf.lastLine = selection.end.line;
@@ -432,7 +426,7 @@ export class IndentSpy {
             let lineAdded = false;
             let innerAdded = false;
             let lineIndent = this._getLinesIndentDepth(line, tabSize);
-            if(this._innerConf.show && !innerDeactivated && (
+            if(!innerDeactivated && (
                     lineIndent > selectedIndent || (
                         line.isEmptyOrWhitespace && selectedIndent === lineIndent &&
                         (i !== selection.end.line || selection.end.character !== this._innerConf.indentPos)))) {
@@ -441,7 +435,7 @@ export class IndentSpy {
                 lineAdded = true;
                 innerAdded = true;
         }
-            if(this._outerConf.show && this._outerConf.indentPos >= 0 && (
+            if(this._outerConf.indentPos >= 0 && (
                     lineIndent >= selectedIndent || (
                         line.isEmptyOrWhitespace && selectedIndent === 1))) {
                 activeRanges.push(this._createIndicatorRange(i, this._outerConf.indentPos));

@@ -365,8 +365,8 @@ suite("Extension Tests", () => {
                 }
             );
 
-            test("does not return a set of ranges for inner if disabled" +
-                 " but still returns the outer",
+            test("does return a set of ranges for inner even if disabled" +
+                 " to enable peeking",
                  () => {
                     IndentSpy._innerConf.show = false;
                     IndentSpy._outerConf.show = true;
@@ -384,7 +384,10 @@ suite("Extension Tests", () => {
                         IndentSpy._createIndicatorRange(6, 0),
                         IndentSpy._createIndicatorRange(7, 0)
                     ];
-                    let expectedInnerRanges = [];
+                    let expectedInnerRanges = [
+                        IndentSpy._createIndicatorRange(2, tabSize),
+                        IndentSpy._createIndicatorRange(3, tabSize),
+                        IndentSpy._createIndicatorRange(4, tabSize),];
 
                     assert.equal(IndentSpy._outerConf.firstLine, 0);
                     assert.equal(IndentSpy._outerConf.lastLine, 8);
@@ -399,8 +402,8 @@ suite("Extension Tests", () => {
                 }
             );
 
-            test("does not return a set of ranges for outer if disabled" +
-                 " but still returns the inner",
+            test("does return a set of ranges for outer even if disabled" +
+                 " to enable peeking",
                  () => {
                     IndentSpy._innerConf.show = true;
                     IndentSpy._outerConf.show = false;
@@ -409,7 +412,15 @@ suite("Extension Tests", () => {
                     let result = IndentSpy._getActiveIndentRanges(
                         document, selection, selectedIndent, tabSize);
 
-                    let expectedRanges = [];
+                    let expectedRanges = [
+                        IndentSpy._createIndicatorRange(1, 0),
+                        IndentSpy._createIndicatorRange(2, 0),
+                        IndentSpy._createIndicatorRange(3, 0),
+                        IndentSpy._createIndicatorRange(4, 0),
+                        IndentSpy._createIndicatorRange(5, 0),
+                        IndentSpy._createIndicatorRange(6, 0),
+                        IndentSpy._createIndicatorRange(7, 0)
+                    ];
                     let expectedInnerRanges = [
                         IndentSpy._createIndicatorRange(2, tabSize),
                         IndentSpy._createIndicatorRange(3, tabSize),
@@ -429,7 +440,7 @@ suite("Extension Tests", () => {
                 }
             );
 
-            test("does not return any  ranges if both disabled",
+            test("does return all ranges evem if both disabled",
                  () => {
                     IndentSpy._innerConf.show = false;
                     IndentSpy._outerConf.show = false;
@@ -438,8 +449,20 @@ suite("Extension Tests", () => {
                     let result = IndentSpy._getActiveIndentRanges(
                         document, selection, selectedIndent, tabSize);
 
-                    let expectedRanges = [];
-                    let expectedInnerRanges = [];
+                    let expectedRanges = [
+                        IndentSpy._createIndicatorRange(1, 0),
+                        IndentSpy._createIndicatorRange(2, 0),
+                        IndentSpy._createIndicatorRange(3, 0),
+                        IndentSpy._createIndicatorRange(4, 0),
+                        IndentSpy._createIndicatorRange(5, 0),
+                        IndentSpy._createIndicatorRange(6, 0),
+                        IndentSpy._createIndicatorRange(7, 0)
+                    ];
+                    let expectedInnerRanges = [
+                        IndentSpy._createIndicatorRange(2, tabSize),
+                        IndentSpy._createIndicatorRange(3, tabSize),
+                        IndentSpy._createIndicatorRange(4, tabSize),
+                    ];
 
                     assert.equal(result.outer.length, expectedRanges.length);
                     assert.equal(result.inner.length, expectedInnerRanges.length);
