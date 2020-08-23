@@ -4,10 +4,10 @@
 
 Visually highlights the current indent depth.
 
-This extension can be used by itself, but it's recommended to use it alongside the builtin indent guides.
+This extension can be used by itself, but it's recommended to use it alongside the built-in indent guides (setting `editor.renderIndentGuides`). These show thin grey lines on *every* indent, while this extension highlights the indent on the indent depth the cursor is currently on.
 
 **Changes in Visual Studio Code 1.23.0**:<br/>
-With Version 1.23.0 VS Code introduced a new builtin active indent guide. For an explanation of differences and tips regarding the new feature and this extension please see [remarks section](#remarks)
+With Version 1.23.0 VS Code introduced a new built-in active indent guide. For an explanation of differences and tips regarding the new feature and this extension please see [remarks section](#remarks)
 
 | ![Indenticator demonstration](img/demo.gif) |
 |- |
@@ -23,12 +23,12 @@ With Version 1.23.0 VS Code introduced a new builtin active indent guide. For an
   |- |
   | Example has **indenticator.hover.peekBack** & **indenticator.hover.peekForward** set to `1`|
 
-- **Highlighting the the indent guide for the contained block**: *Optionally* a second indent highlight can be configured to highlight the block contained by the current cursor position<br/>
+- **Highlighting the the indent guide for the contained block**: *Optionally* a second indent highlight can be configured to show the block *contained* by the current cursor position<br/>
 *To activate set **indenticator.inner.showHighlight** to `true`*
 
   | ![Indenticator demonstration](img/r0.5.0/example_inner.png) |
   |- |
-  | *Example has **indenticator.inner.color.dark** set to `#ff0000`*  |
+  | *Example with settings **indenticator.inner.showHighlight** set to `true` & **indenticator.inner.color.dark**  set to `#ff0000`  |
 
 
 - **Language specific settings**: The extension can be configured for each language separately to accommondate the requirements of different coding styles.
@@ -110,23 +110,14 @@ With Version 1.23.0 VS Code introduced a new builtin active indent guide. For an
 }
 ```
 ### Remarks
-- **New Builtin active indent guide (VS Code 1.23.0)**
-  - Their approach always highlights the highest indent on the currently selected line while this extensions highlights the indent depth the cursor is currently at. The difference can be seen in the following image:
+- **New Built-in active indent guide (VS Code 1.23.0)**
+  - The built-in active indent guide always highlights the *highest* indent on the currently selected line, while this extensions highlights the indent depth the *cursor is currently at*. The difference can be seen in the following image:
 
     | ![Indenticator demonstration](img/r0.6.0/new_active_indent.png) |
     |- |
-    | *yellow* is the new builtin active indent guide<br/>*red* is the inner active indent guide of this extension<br/>*grey* is the default active guide indent of this extension |
+    | *yellow* is the new built-in active indent guide<br/>*red* is the inner active indent guide of this extension<br/>*grey* is the default active indent guide of this extension |
 
-  - The buildin active indent guide will always be enabled if the builtin indent guides are enabled (`"editor.renderIndentGuides": true`)
-  - If you don't want the new active indent guide but still want to use the old indent guides you can assign the same color to both of them as a workaround. That way the active indent guide won't be distinguishable from the the normal builtin indent guides.
-
-    Example:
-    ``` JS
-    "workbench.colorCustomizations": {
-      "editorIndentGuide.activeBackground": "#ffffff22",
-      "editorIndentGuide.background": "#ffffff22",
-    }
-    ```
+  - The built-in *active* indent guide can be configured through the setting: `editor.highlightActiveIndentGuide`
 
 - **indenticator.languageSpecific**: The language identifiers can be viewed by using [VS Codes language selection](https://code.visualstudio.com/docs/languages/overview#_language-id) in the statusbar. To be analogous to [language specific editor options](https://code.visualstudio.com/docs/getstarted/settings#_language-specific-editor-settings) of VS Code the key has to be put between square brackets. But to simplify configuration of similar languages multiple keys can be listed within the square brackets as a comma seperated list.
 
