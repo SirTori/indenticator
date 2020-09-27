@@ -13,20 +13,18 @@
             "outFiles": [
                 "${workspaceFolder}/out/src/*.js"
             ],
-            "preLaunchTask": "npm"
+            "preLaunchTask": "npm: compile"
         },
         {
             "name": "Launch Tests",
             "type": "extensionHost",
             "request": "launch",
             "runtimeExecutable": "${execPath}",
-            "args": ["${workspaceRoot}/out/test", "--extensionDevelopmentPath=${workspaceRoot}", "--extensionTestsPath=${workspaceRoot}/out/test" ],
-            "stopOnEntry": false,
-            "sourceMaps": true,
-            "outFiles": [
-                "${workspaceFolder}/out/test/*.js"
-            ],
-            "preLaunchTask": "npm"
+            "args": [
+                "${workspaceRoot}/out/test/suite",
+                "--extensionDevelopmentPath=${workspaceRoot}",
+                "--extensionTestsPath=${workspaceRoot}/out/test/suite" ],
+            "preLaunchTask": "npm: compile"
         }
     ]
 }
