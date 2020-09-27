@@ -4,14 +4,19 @@
 
 Visually highlights the current indent depth.
 
-This extension can be used by itself, but it's recommended to use it alongside the built-in indent guides (setting `editor.renderIndentGuides`). These show thin grey lines on *every* indent, while this extension highlights the indent on the indent depth the cursor is currently on.
+This extension can be used by itself, but it's recommended to use it alongside the built-in indent guides (setting **editor.renderIndentGuides**). These show thin grey lines on *every* indent, while this extension highlights the indent on the indent depth the cursor is currently on.
 
 **Changes in Visual Studio Code 1.23.0**:<br/>
 With Version 1.23.0 VS Code introduced a new built-in active indent guide. For an explanation of differences and tips regarding the new feature and this extension please see [remarks section](#remarks)
 
-| ![Indenticator demonstration](img/demo.gif) |
-|- |
-| *Example using default settings* |
+<table>
+  <tr>
+    <td><img src="img/demo.gif"></td>
+  </tr>
+  <tr>
+    <td>Example using default settings</td>
+  </tr>
+</table>
 
 
 ## Feature Highlights
@@ -19,16 +24,28 @@ With Version 1.23.0 VS Code introduced a new built-in active indent guide. For a
 - **Peeking around the current indent block**: *Optionally* a hover can be added on the current indent marker to peek before and/or after the current indent block.<br/>
 *To activate set **indenticator.showHover** to `true`*
 
-  | ![Indenticator demonstration](img/r0.5.0/example_highlight.png) |
-  |- |
-  | Example has **indenticator.hover.peekBack** & **indenticator.hover.peekForward** set to `1`|
+  <table>
+    <tr>
+      <td><img src="img/r0.7.0/hover_with_highlight.png"></td>
+      <td><img src="img/r0.7.0/hover_without_highlight.png"></td>
+    </tr>
+    <tr>
+      <td>Example has <b>indenticator.hover.peekBack</b> & <b>indenticator.hover.peekForward</b> set to <code>1</code> and <b>indenticator.hover.highlight</b> set to <code>true</code></td>
+      <td>Example has <b>indenticator.hover.peekBack</b> & <b>indenticator.hover.peekForward</b> set to <code>1</code> and <b>indenticator.hover.highlight</b> set to <code>false</code></td>
+    </tr>
+  </table>
 
-- **Highlighting the the indent guide for the contained block**: *Optionally* a second indent highlight can be configured to show the block *contained* by the current cursor position<br/>
-*To activate set **indenticator.inner.showHighlight** to `true`*
+- **Highlighting the the indent guide for the contained block**: *Optionally* a second indent guide can be configured to show the block *contained* by the current cursor position<br/>
+*To activate set **indenticator.inner.showIndentGuide** to `true`*
 
-  | ![Indenticator demonstration](img/r0.5.0/example_inner.png) |
-  |- |
-  | *Example with settings **indenticator.inner.showHighlight** set to `true` & **indenticator.inner.color.dark**  set to `#ff0000`  |
+  <table>
+    <tr>
+      <td><img src="img/r0.5.0/example_inner.png"></td>
+    </tr>
+    <tr>
+      <td>Example has <b>indenticator.inner.showIndentGuide</b> set to <code>true</code> and <b>indenticator.inner.color.dark</b> set to <code>#ff000</code></td>
+    </tr>
+  </table>
 
 
 - **Language specific settings**: The extension can be configured for each language separately to accommondate the requirements of different coding styles.
@@ -56,7 +73,7 @@ With Version 1.23.0 VS Code introduced a new built-in active indent guide. For a
     /********** Standard Indent Highlight Config **********/
     /******************************************************/
     /* Whether to highlight the indent of the block enclosing the current line */
-    "indenticator.showHighlight": true
+    "indenticator.showIndentGuide": true
     /* Color of the indent marker for dark themes */
     "indenticator.color.dark": "#888",
     /* Color of the indent marker for light themes */
@@ -67,6 +84,8 @@ With Version 1.23.0 VS Code introduced a new built-in active indent guide. For a
     "indenticator.style": "inset",
     /* Whether to display the hover near the indent line */
     "indenticator.showHover": false,
+    /* Wether to highlight the contained code block when hovering the indent line. If activated, the peeked content will be shown at top or bottom of the block, otherwise it will be shown at cursor position.*/
+    "indenticator.hover.highlight": true,
     /* Lines before the current indent to be shown on hover */
     "indenticator.hover.peekBack": 1,
     /* Lines after the current indent to be shown on hover */
@@ -91,6 +110,8 @@ With Version 1.23.0 VS Code introduced a new built-in active indent guide. For a
     "indenticator.inner.style": "inset",
     /* Whether to display the hover near the inner indent line */
     "indenticator.inner.showHover": false,
+    /* Wether to highlight the contained code block when hovering the indent line. If activated, the peeked content will be shown at top or bottom of the block, otherwise it will be shown at cursor position.*/
+    "indenticator.inner.hover.highlight": true,
     /* Lines before the current inner indent to be shown on hover */
     "indenticator.inner.hover.peekBack": 1,
     /* Lines after the current inner indent to be shown on hover */
@@ -117,7 +138,7 @@ With Version 1.23.0 VS Code introduced a new built-in active indent guide. For a
     |- |
     | *yellow* is the new built-in active indent guide<br/>*red* is the inner active indent guide of this extension<br/>*grey* is the default active indent guide of this extension |
 
-  - The built-in *active* indent guide can be configured through the setting: `editor.highlightActiveIndentGuide`
+  - The built-in *active* indent guide can be configured through the setting: **editor.highlightActiveIndentGuide**
 
 - **indenticator.languageSpecific**: The language identifiers can be viewed by using [VS Codes language selection](https://code.visualstudio.com/docs/languages/overview#_language-id) in the statusbar. To be analogous to [language specific editor options](https://code.visualstudio.com/docs/getstarted/settings#_language-specific-editor-settings) of VS Code the key has to be put between square brackets. But to simplify configuration of similar languages multiple keys can be listed within the square brackets as a comma seperated list.
 

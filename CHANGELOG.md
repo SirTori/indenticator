@@ -1,3 +1,21 @@
+# 0.7.0
+
+## Minor
+- Renamed settings:
+  - **indenticator.showHighlight** changed to **indenticator.showIndentGuide**
+  - **indenticator.inner.showHighlight** changed to **indenticator.inner.showIndentGuide**
+- At some point the behaviour for hovers in VS Code changed slightly:
+
+  Now if the hover highlights a code block the content of the hover is shown above or below the highlighted block, rather than at the cursor position. Without highlighting a code block the hover will still be shown at the cursor position.
+
+  To give the user control over how the peek feature should behave when hovering on the indent guides new settings were added:
+  - **indenticator.hover.highlight** (default `true`): Controls wether hovering on the indent guide should highlight the code block
+  - **indenticator.inner.hover.highlight** (default `true`): Controls wether hovering on the inner indent guide should highlight the code block
+- Hovering now works even if the indent guides themselves are disabled
+## Patch
+- Fixes for #23, #25 & #26
+- Dependencies updated
+
 # 0.6.0
 
 ## Minor

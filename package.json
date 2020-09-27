@@ -40,7 +40,10 @@
     "guides",
     "indentation",
     "indentation guides",
-    "indent"
+    "indent",
+    "indent guides",
+    "block highlight",
+    "vertical block line"
   ],
   "activationEvents": [
     "*"
@@ -51,6 +54,7 @@
     "compile": "tsc -p ./",
     "lint": "eslint . --ext .ts,.tsx",
     "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile",
     "test": "node ./out/test/runTest.js"
   },
   "devDependencies": {
@@ -69,7 +73,7 @@
       "type": "object",
       "title": "Indenticator Configuration",
       "properties": {
-        "indenticator.showHighlight": {
+        "indenticator.showIndentGuide": {
           "type": "boolean",
           "default": true,
           "description": "Whether to highlight the indent of the block enclosing the current line"
@@ -94,7 +98,7 @@
           "default": "inset",
           "description": "Line style of the indent marker"
         },
-        "indenticator.inner.showHighlight": {
+        "indenticator.inner.showIndentGuide": {
           "type": "boolean",
           "default": false,
           "description": "Whether to highlight the indent of the block enclosed by the current line"
@@ -131,6 +135,11 @@
           "default": false,
           "description": "Whether to display the hover near the indent line, or minimum number of lines in current indent block to activate the hover."
         },
+        "indenticator.hover.highlight": {
+          "type": "boolean",
+          "default": true,
+          "description": "Wether to highlight the contained code block when hovering the indent line. If activated, the peeked content will be shown at top or bottom of the block, otherwise it will be shown at cursor position."
+        },
         "indenticator.hover.peekBack": {
           "type": "number",
           "default": 1,
@@ -158,6 +167,11 @@
           ],
           "default": false,
           "description": "Whether to display the hover near the inner indent line, or minimum number of lines in current indent block to activate the hover."
+        },
+        "indenticator.inner.hover.highlight": {
+          "type": "boolean",
+          "default": true,
+          "description": "Wether to highlight the contained code block when hovering the inner indent line. If activated, the peeked content will be shown at top or bottom of the block, otherwise it will be shown at cursor position."
         },
         "indenticator.inner.hover.peekBack": {
           "type": "number",
@@ -257,6 +271,11 @@
                   "default": false,
                   "description": "Whether to display the hover near the indent line, or minimum number of lines in current indent block to activate the hover."
                 },
+                "indenticator.hover.highlight": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "Wether to highlight the contained code block when hovering the indent line. If activated, the peeked content will be shown at top or bottom of the block, otherwise it will be shown at cursor position."
+                },
                 "indenticator.hover.peekBack": {
                   "type": "number",
                   "default": 1,
@@ -284,6 +303,11 @@
                   ],
                   "default": false,
                   "description": "Whether to display the hover near the inner indent line, or minimum number of lines in current indent block to activate the hover."
+                },
+                "indenticator.inner.hover.highlight": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "Wether to highlight the contained code block when hovering the inner indent line. If activated, the peeked content will be shown at top or bottom of the block, otherwise it will be shown at cursor position."
                 },
                 "indenticator.inner.hover.peekBack": {
                   "type": "number",
