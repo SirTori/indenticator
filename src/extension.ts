@@ -39,6 +39,7 @@ class IndentConfiguration {
     style: TextEditorDecorationType;
     hover: number;
     hoverConf: {
+        highlight: boolean,
         peekBack: number,
         peekForward: number,
         trimLinesShorterThan: number,
@@ -146,6 +147,7 @@ export class IndentSpy {
         }
         if(this._outerConf.hover) {
             this._outerConf.hoverConf = {
+                highlight: myConf.get('hover.highlight', true),
                 peekBack: myConf.get('hover.peekBack', 1),
                 peekForward: myConf.get('hover.peekForward', 0),
                 trimLinesShorterThan: myConf.get(
@@ -165,6 +167,7 @@ export class IndentSpy {
         }
         if(this._innerConf.hover) {
             this._innerConf.hoverConf = {
+                highlight: myConf.get('inner.hover.highlight', true),
                 peekBack: myConf.get('inner.hover.peekBack', 1),
                 peekForward: myConf.get('inner.hover.peekForward', 0),
                 trimLinesShorterThan: myConf.get(
@@ -257,10 +260,14 @@ export class IndentSpy {
            && position.line >= conf.firstLine
            && position.line <= conf.lastLine) {
             let str = this._buildHoverString(editor, tabSize, conf);
+            let range;
+            if (conf.hoverConf.highlight) {
+                range = new Range(conf.firstLine, conf.indentPos,
+                                  conf.lastLine, conf.indentPos)
+            }
             if(str) {
                 return {
-                    range: new Range(conf.firstLine, conf.indentPos,
-                                     conf.lastLine, conf.indentPos),
+                    range: range,
                     contents: [
                         {
                             language: editor.document.languageId,
