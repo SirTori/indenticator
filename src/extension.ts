@@ -110,8 +110,8 @@ export class IndentSpy {
             this._statusBarItem = undefined;
         }
 
-        this._outerConf.show = myConf.get('showHighlight');
-        this._innerConf.show = myConf.get('inner.showHighlight');
+        this._outerConf.show = myConf.get('showIndentGuide');
+        this._innerConf.show = myConf.get('inner.showIndentGuide');
 
         this._outerConf.style = window.createTextEditorDecorationType({
             dark: {
